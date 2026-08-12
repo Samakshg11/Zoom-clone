@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 from typing import List, Optional
 from datetime import datetime, timezone
@@ -14,7 +15,7 @@ from seed import seed_db, generate_meeting_code
 async def lifespan(app: FastAPI):
     # Initialize DB tables
     Base.metadata.create_all(bind=engine)
-    # Seed initial data
+    # Seed initial data (idempotent)
     db = next(get_db())
     try:
         seed_db(db)
@@ -29,10 +30,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS Middleware Configuration
+# Dynamic CORS Configuration
+raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
+origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins if origins else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,12 +46,10 @@ def normalize_code(code: str) -> str:
     return code.strip().replace(" ", "").replace("-", "")
 
 def find_meeting_by_code(db: Session, raw_code: str) -> Optional[models.Meeting]:
-    # Match exact code first
     meeting = db.query(models.Meeting).filter(models.Meeting.meeting_code == raw_code).first()
     if meeting:
         return meeting
     
-    # Try normalized match (ignoring hyphens)
     normalized_input = normalize_code(raw_code)
     all_meetings = db.query(models.Meeting).all()
     for m in all_meetings:
@@ -65,7 +67,6 @@ def create_instant_meeting(
     db: Session = Depends(get_db)
 ):
     code = generate_meeting_code()
-    # Check uniqueness
     while db.query(models.Meeting).filter(models.Meeting.meeting_code == code).first():
         code = generate_meeting_code()
 
@@ -77,7 +78,7 @@ def create_instant_meeting(
         description="Instant video meeting",
         host_id=1,  # Default seeded user
         type="instant",
-        scheduled_time=datetime.now(timezone.utc),
+        scheduled_time=None,
         duration_mins=45,
         invite_link=f"/join/{code}",
         status="live",
@@ -116,9 +117,14 @@ def create_scheduled_meeting(
 
 @app.get("/api/meetings/upcoming", response_model=List[schemas.MeetingResponse])
 def get_upcoming_meetings(db: Session = Depends(get_db)):
+    now = datetime.now(timezone.utc)
     meetings = (
         db.query(models.Meeting)
-        .filter(models.Meeting.status.in_(["upcoming", "live"]))
+        .filter(
+            models.Meeting.type == "scheduled",
+            models.Meeting.status == "upcoming",
+            models.Meeting.scheduled_time >= now
+        )
         .order_by(models.Meeting.scheduled_time.asc())
         .all()
     )
@@ -157,15 +163,22 @@ def join_meeting(
             detail=f"Meeting with code '{meeting_code}' was not found."
         )
 
+    # Reject joining ended meetings
+    if meeting.status == "ended":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This meeting has ended."
+        )
+
     # Create participant entry
     participant = models.Participant(
         meeting_id=meeting.id,
-        display_name=payload.display_name.strip() or "Guest User",
+        display_name=payload.display_name.strip(),
         joined_at=datetime.now(timezone.utc)
     )
     db.add(participant)
     
-    # If meeting was upcoming, mark it live when host/first participant joins
+    # Transition upcoming -> live when participant joins
     if meeting.status == "upcoming":
         meeting.status = "live"
         db.add(meeting)
@@ -179,6 +192,22 @@ def join_meeting(
         participant=participant,
         meeting=meeting
     )
+
+@app.post("/api/meetings/{meeting_code}/end", response_model=schemas.MeetingResponse)
+def end_meeting(meeting_code: str, db: Session = Depends(get_db)):
+    meeting = find_meeting_by_code(db, meeting_code)
+    if not meeting:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Meeting with code '{meeting_code}' was not found."
+        )
+
+    # Mark status as ended (idempotent)
+    meeting.status = "ended"
+    db.add(meeting)
+    db.commit()
+    db.refresh(meeting)
+    return meeting
 
 @app.delete("/api/meetings/{meeting_code}", status_code=status.HTTP_200_OK)
 def cancel_meeting(meeting_code: str, db: Session = Depends(get_db)):

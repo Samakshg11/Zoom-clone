@@ -18,15 +18,15 @@ def seed_db(db: Session):
         db.commit()
         db.refresh(user)
 
-    # Check if meetings already seeded
+    # Idempotency check: if meetings exist, skip seeding to preserve database state
     existing_count = db.query(Meeting).count()
     if existing_count > 0:
         return
 
     now = datetime.now(timezone.utc)
 
-    # Seed Upcoming Meeting 1
-    code1 = generate_meeting_code()
+    # 1. Upcoming Scheduled Meeting
+    code1 = "982-415-307"
     m1 = Meeting(
         meeting_code=code1,
         title="Weekly Sync with Design Team",
@@ -40,8 +40,8 @@ def seed_db(db: Session):
         created_at=now - timedelta(days=1)
     )
 
-    # Seed Upcoming Meeting 2
-    code2 = generate_meeting_code()
+    # 2. Upcoming Scheduled Meeting
+    code2 = "415-892-603"
     m2 = Meeting(
         meeting_code=code2,
         title="Product Architecture Review",
@@ -55,8 +55,8 @@ def seed_db(db: Session):
         created_at=now - timedelta(hours=5)
     )
 
-    # Seed Recent Meeting 1 (Ended)
-    code3 = generate_meeting_code()
+    # 3. Ended Recent Meeting
+    code3 = "312-709-450"
     m3 = Meeting(
         meeting_code=code3,
         title="Sprint Retrospective",
@@ -70,8 +70,8 @@ def seed_db(db: Session):
         created_at=now - timedelta(days=2)
     )
 
-    # Seed Recent Meeting 2 (Ended)
-    code4 = generate_meeting_code()
+    # 4. Ended Recent Meeting
+    code4 = "628-941-205"
     m4 = Meeting(
         meeting_code=code4,
         title="Scaler SDE Fullstack Discussion",
@@ -94,4 +94,4 @@ def seed_db(db: Session):
     p3 = Participant(meeting_id=m4.id, display_name="Rahul Sharma", joined_at=now - timedelta(days=3))
     db.add_all([p1, p2, p3])
     db.commit()
-    print("Database successfully seeded with default user and sample meetings.")
+    print("Database idempotently seeded with initial sample meetings.")

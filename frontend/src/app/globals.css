@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+:root {
+  --zoom-blue: #2D8CFF;
+  --zoom-blue-hover: #0E71EB;
+  --zoom-dark-bg: #1A1E24;
+  --zoom-dark-card: #242A32;
+  --zoom-dark-bar: #16191E;
+  --zoom-gray-text: #6E7683;
+}
+
+body {
+  background-color: #F7F9FC;
+  color: #1A202C;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(45, 140, 255, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(45, 140, 255, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(45, 140, 255, 0);
+  }
+}
+
+.speaking-pulse {
+  animation: pulse-ring 1.8s infinite;
+}
+
+@keyframes audio-wave {
+  0%, 100% { height: 4px; }
+  50% { height: 16px; }
+}
+
+.bar-1 { animation: audio-wave 0.8s ease-in-out infinite; }
+.bar-2 { animation: audio-wave 0.8s ease-in-out infinite 0.2s; }
+.bar-3 { animation: audio-wave 0.8s ease-in-out infinite 0.4s; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

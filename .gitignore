@@ -1,0 +1,29 @@
+# Node.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Python
+backend/venv/
+backend/__pycache__/
+__pycache__/
+*.pyc
+*.pyo
+
+# Database
+backend/zoom_clone.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment
+.env
+.env.*
+!.env.example
+frontend/.env.local
+
+# IDE & System
+.DS_Store
+*.log
+.vscode/
+.idea/
