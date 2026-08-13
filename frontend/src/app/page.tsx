@@ -7,10 +7,10 @@ import {
   Video, Plus, Calendar as CalendarIcon, Copy, Check,
   ChevronDown, ExternalLink, Settings, Home, MessageSquare,
   MoreHorizontal, Info, ChevronLeft, ChevronRight, Play,
-  Loader2, Hash
+  Loader2, Hash, Trash2
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import { fetchUpcomingMeetings, fetchRecentMeetings, createInstantMeeting, Meeting } from '@/lib/api';
+import { fetchUpcomingMeetings, fetchRecentMeetings, createInstantMeeting, cancelMeeting, Meeting } from '@/lib/api';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -19,8 +19,21 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [creatingInstant, setCreatingInstant] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<'home' | 'meetings' | 'chat'>('home');
+
+  const handleDeleteMeeting = async (meetingCode: string) => {
+    if (!confirm('Remove this scheduled meeting?')) return;
+    setDeletingCode(meetingCode);
+    const ok = await cancelMeeting(meetingCode);
+    if (ok) {
+      setUpcomingMeetings((prev) => prev.filter((m) => m.meeting_code !== meetingCode));
+    } else {
+      alert('Failed to remove meeting. Please try again.');
+    }
+    setDeletingCode(null);
+  };
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -316,12 +329,24 @@ export default function Dashboard() {
                         <button
                           onClick={(e) => handleCopyLink(m, e)}
                           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200"
-                          title="Copy Link"
+                          title="Copy invite link"
                         >
                           {copiedCode === m.meeting_code ? (
                             <Check className="w-4 h-4 text-green-600" />
                           ) : (
                             <Copy className="w-4 h-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMeeting(m.meeting_code)}
+                          disabled={deletingCode === m.meeting_code}
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200 disabled:opacity-50"
+                          title="Remove meeting"
+                        >
+                          {deletingCode === m.meeting_code ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
                           )}
                         </button>
                         <button
