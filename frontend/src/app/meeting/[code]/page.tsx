@@ -213,7 +213,7 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
               }
             }}
             className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 rounded-xl transition-colors"
-            title="Settings"
+            
           >
             <Settings className="w-5 h-5" />
           </button>
