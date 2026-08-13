@@ -166,7 +166,11 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
         <aside className="w-[72px] bg-[#F7F8FA] border-r border-gray-200/80 flex flex-col items-center justify-between py-4 select-none shrink-0 z-10">
           <div className="flex flex-col items-center gap-2 w-full px-2">
             <button
-              onClick={() => router.push('/')}
+              onClick={() => {
+                if (confirm("Are you sure you want to leave the meeting?")) {
+                  handleLeaveMeeting();
+                }
+              }}
               className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all"
             >
               <Home className="w-5 h-5 mb-1" />
@@ -174,7 +178,11 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
             </button>
 
             <button
-              onClick={() => router.push('/join')}
+              onClick={() => {
+                if (confirm("Are you sure you want to leave the meeting?")) {
+                  handleLeaveMeeting();
+                }
+              }}
               className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl bg-white shadow-xs border border-gray-200/80 text-gray-900 font-semibold transition-all"
             >
               <Video className="w-5 h-5 mb-1" />
@@ -199,7 +207,11 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
           </div>
 
           <button
-            onClick={() => router.push('/')}
+            onClick={() => {
+              if (confirm("Are you sure you want to leave the meeting?")) {
+                handleLeaveMeeting();
+              }
+            }}
             className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 rounded-xl transition-colors"
             title="Settings"
           >

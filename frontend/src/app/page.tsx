@@ -113,7 +113,7 @@ export default function Dashboard() {
 
             {/* Meetings Tab */}
             <button
-              onClick={() => setActiveTab('meetings')}
+              onClick={() => router.push('/join')}
               className={`w-full flex flex-col items-center justify-center py-2.5 rounded-xl transition-all ${
                 activeTab === 'meetings'
                   ? 'bg-white shadow-xs border border-gray-200/80 text-gray-900 font-semibold'
