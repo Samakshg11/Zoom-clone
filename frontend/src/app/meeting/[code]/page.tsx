@@ -26,10 +26,12 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
   const [isSelfMuted, setIsSelfMuted] = useState(true);
   const [isSelfVideoOff, setIsSelfVideoOff] = useState(true);
 
-  // Drawer States
+  // Drawer & Stage States
   const [showParticipantsDrawer, setShowParticipantsDrawer] = useState(false);
   const [showChatDrawer, setShowChatDrawer] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [activeReaction, setActiveReaction] = useState<string | null>(null);
+  const [isSharingScreen, setIsSharingScreen] = useState(false);
 
   // Participants State
   const [gridParticipants, setGridParticipants] = useState<GridParticipant[]>([]);
@@ -40,6 +42,11 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
     navigator.clipboard.writeText(fullUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2500);
+  };
+
+  const handleSelectReaction = (emoji: string) => {
+    setActiveReaction(emoji);
+    setTimeout(() => setActiveReaction(null), 3500);
   };
 
   useEffect(() => {
@@ -241,6 +248,8 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
               participants={gridParticipants}
               isSelfMuted={isSelfMuted}
               isSelfVideoOff={isSelfVideoOff}
+              activeReaction={activeReaction}
+              isSharingScreen={isSharingScreen}
             />
 
             {/* Side Drawer: Participants */}
@@ -278,6 +287,9 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
               if (showParticipantsDrawer) setShowParticipantsDrawer(false);
             }}
             onLeave={handleLeaveMeeting}
+            onSelectReaction={handleSelectReaction}
+            isSharingScreen={isSharingScreen}
+            onToggleShareScreen={() => setIsSharingScreen(!isSharingScreen)}
           />
 
         </div>

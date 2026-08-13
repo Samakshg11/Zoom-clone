@@ -23,24 +23,16 @@ export default function ParticipantsDrawer({
 
   if (!isOpen) return null;
 
-  const defaultList = [
-    { id: 'self', name: 'Demo Host', isHost: true, isSelf: true, initials: 'DH', avatarBg: 'bg-[#0e71eb]' },
-    { id: 'p1', name: 'John Doe', isHost: false, initials: 'JD', avatarBg: 'bg-blue-800', isMuted: true },
-    { id: 'p2', name: 'Alice Smith', isHost: false, initials: 'AS', avatarBg: 'bg-[#e2e0f6] text-[#191a2a]', isMuted: true, isVideoOff: true }
-  ];
-
-  const listToRender = participants.length > 1
-    ? participants.map((p) => ({
-        id: p.id,
-        name: p.name,
-        isHost: !!p.isHost,
-        isSelf: !!p.isSelf,
-        initials: p.name.slice(0, 2).toUpperCase(),
-        avatarBg: p.isSelf ? 'bg-[#0e71eb]' : 'bg-[#e2e0f6] text-[#191a2a]',
-        isMuted: p.isSelf ? isSelfMuted : (p.isMuted ?? true),
-        isVideoOff: p.isSelf ? isSelfVideoOff : (p.isVideoOff ?? true)
-      }))
-    : defaultList;
+  const listToRender = participants.map((p) => ({
+    id: p.id,
+    name: p.name,
+    isHost: !!p.isHost,
+    isSelf: !!p.isSelf,
+    initials: p.name.slice(0, 2).toUpperCase(),
+    avatarBg: p.isSelf ? 'bg-[#0e71eb]' : 'bg-[#e2e0f6] text-[#191a2a]',
+    isMuted: p.isSelf ? isSelfMuted : (p.isMuted ?? true),
+    isVideoOff: p.isSelf ? isSelfVideoOff : (p.isVideoOff ?? true)
+  }));
 
   const filtered = listToRender.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
