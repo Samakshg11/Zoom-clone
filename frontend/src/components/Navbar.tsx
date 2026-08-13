@@ -14,47 +14,47 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="bg-[#EBF0F5] border-b border-gray-200/90 h-12 px-4 flex items-center justify-between sticky top-0 z-40 select-none">
+      <header className="bg-[#EBF0F5] border-b border-gray-300/60 h-11 px-4 flex items-center justify-between sticky top-0 z-40 select-none">
         
         {/* Left: Brand Logo & Navigation History */}
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-1 group">
-            <span className="font-bold text-[18px] tracking-tight text-[#0E71EB]">zoom</span>
-            <span className="font-[#1a1a1a] text-[18px] font-[#2e2f3f] tracking-tight text-gray-900">Workplace</span>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex flex-col justify-center leading-none group">
+            <span className="font-bold text-[14px] tracking-tight text-gray-900">zoom</span>
+            <span className="font-semibold text-[10px] tracking-tight text-gray-800 -mt-0.5">Workplace</span>
           </Link>
 
-          <div className="hidden sm:flex items-center gap-1 ml-3 text-gray-500">
+          <div className="hidden sm:flex items-center gap-1 text-gray-400 ml-1">
             <button
               onClick={() => router.back()}
-              className="p-1 hover:text-gray-800 hover:bg-gray-200/70 rounded transition-colors"
+              className="p-1 hover:text-gray-700 hover:bg-gray-200/60 rounded transition-colors"
               title="Go back"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => router.forward()}
-              className="p-1 hover:text-gray-800 hover:bg-gray-200/70 rounded transition-colors"
+              className="p-1 hover:text-gray-700 hover:bg-gray-200/60 rounded transition-colors"
               title="Go forward"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
             <button
-              className="p-1 hover:text-gray-800 hover:bg-gray-200/70 rounded transition-colors"
+              className="p-1 hover:text-gray-700 hover:bg-gray-200/60 rounded transition-colors"
               title="History"
             >
-              <History className="w-4 h-4" />
+              <History className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
         {/* Center: Search Bar */}
-        <div className="flex-1 max-w-md mx-4 hidden md:block">
-          <div className="relative flex items-center">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3 pointer-events-none" />
+        <div className="flex-1 max-w-[420px] mx-4 hidden md:block">
+          <div className="relative flex items-center justify-center">
+            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 pointer-events-none" />
             <input
               type="text"
               placeholder="Search ⌘ + K"
-              className="w-full bg-[#DFE5EB] hover:bg-[#D5DCE4] focus:bg-white border border-transparent focus:border-[#0E71EB] rounded-lg pl-9 pr-4 py-1 text-xs text-gray-800 placeholder-gray-500 focus:outline-none transition-all shadow-inner"
+              className="w-full bg-[#DFE5EB] hover:bg-[#D5DCE4] focus:bg-white border border-transparent focus:border-[#0E71EB] rounded-lg pl-9 pr-4 h-7 text-xs text-gray-800 placeholder-gray-500 text-center focus:text-left focus:placeholder-transparent transition-all"
             />
           </div>
         </div>
@@ -63,15 +63,15 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => alert("Upgrade to Pro features.")}
-            className="bg-[#0E71EB] hover:bg-[#0059be] text-white text-xs font-semibold px-3.5 py-1.5 rounded-full transition-colors flex items-center gap-1 shadow-xs"
+            className="bg-[#0E71EB] hover:bg-[#0059be] text-white text-xs font-semibold px-3.5 py-1 rounded-full transition-colors flex items-center justify-center shadow-xs"
           >
-            <span>Upgrade</span>
+            Upgrade
           </button>
 
           <button
             onClick={() => setShowSettingsModal(true)}
             title="User profile"
-            className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 border border-white flex items-center justify-center font-bold text-xs text-white shadow-xs hover:opacity-90 transition-opacity"
+            className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-700 via-indigo-600 to-purple-500 border border-white/80 flex items-center justify-center font-bold text-[11px] text-white shadow-xs hover:opacity-90 transition-opacity"
           >
             DH
           </button>

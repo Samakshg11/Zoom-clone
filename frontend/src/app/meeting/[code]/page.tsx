@@ -4,7 +4,7 @@ import React, { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Loader2, AlertCircle, Info, ShieldCheck, Grid, Maximize2,
-  Home, Video, MessageSquare, MoreHorizontal, Settings
+  Home, Video, MessageSquare, MoreHorizontal, Settings, Copy, Check
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import ParticipantGrid, { GridParticipant } from '@/components/MeetingRoom/ParticipantGrid';
@@ -29,10 +29,18 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
   // Drawer States
   const [showParticipantsDrawer, setShowParticipantsDrawer] = useState(false);
   const [showChatDrawer, setShowChatDrawer] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   // Participants State
   const [gridParticipants, setGridParticipants] = useState<GridParticipant[]>([]);
   const [currentUserDisplayName, setCurrentUserDisplayName] = useState('Demo Host');
+
+  const handleCopyMeetingLink = () => {
+    const fullUrl = `${window.location.origin}/join/${meetingCode}`;
+    navigator.clipboard.writeText(fullUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
 
   useEffect(() => {
     async function loadMeeting() {
@@ -196,15 +204,34 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
         <div className="flex-1 bg-[#1C1D1F] flex flex-col overflow-hidden relative pb-[64px]">
           
           {/* Top Bar inside Meeting Canvas */}
-          <div className="flex items-center justify-between px-4 py-2 bg-[#141414] text-white border-b border-gray-800 text-xs shrink-0">
+          <div className="flex items-center justify-between px-4 py-2 bg-[#141414] text-white border-b border-gray-800 text-xs shrink-0 select-none">
             <div className="flex items-center gap-2 font-medium truncate">
               <Info className="w-4 h-4 text-gray-400 shrink-0" />
               <span className="truncate">{meeting.title}</span>
+              <span className="text-gray-500 font-mono text-[11px] hidden sm:inline">({meeting.meeting_code})</span>
             </div>
-            <div className="flex items-center gap-3 text-gray-400">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleCopyMeetingLink}
+                className="flex items-center gap-1.5 bg-[#2A2B2E] hover:bg-[#3A3B3E] active:bg-[#4A4B4E] text-white text-[11px] font-semibold px-2.5 py-1 rounded-md transition-colors border border-gray-700 shadow-xs"
+                title="Copy Invite Link"
+              >
+                {copiedLink ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400 font-medium">Link Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-gray-300" />
+                    <span>Copy Link</span>
+                  </>
+                )}
+              </button>
+              <div className="w-px h-4 bg-gray-700 hidden sm:block" />
               <ShieldCheck className="w-4 h-4 text-emerald-500 cursor-pointer" title="Encrypted" />
-              <Grid className="w-4 h-4 hover:text-white cursor-pointer" title="View" />
-              <Maximize2 className="w-4 h-4 hover:text-white cursor-pointer" title="Fullscreen" />
+              <Grid className="w-4 h-4 text-gray-400 hover:text-white cursor-pointer" title="View" />
+              <Maximize2 className="w-4 h-4 text-gray-400 hover:text-white cursor-pointer" title="Fullscreen" />
             </div>
           </div>
 

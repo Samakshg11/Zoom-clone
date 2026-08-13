@@ -75,15 +75,15 @@ export default function Dashboard() {
   };
 
   const formattedTime = currentTime
-    ? currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    ? currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
     : '12:37 AM';
 
   const formattedDate = currentTime
-    ? currentTime.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })
+    ? currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
     : 'Friday, August 14';
 
   const shortDateHeader = currentTime
-    ? currentTime.toLocaleDateString([], { month: 'short', day: 'numeric' })
+    ? currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : 'Aug 14';
 
   return (
@@ -163,11 +163,11 @@ export default function Dashboard() {
         <main className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 flex flex-col items-center space-y-8">
 
           {/* Live Digital Clock & Date */}
-          <div className="text-center space-y-1">
-            <h1 className="text-4xl sm:text-5xl font-light tracking-tight text-gray-900">
+          <div className="text-center space-y-1 select-none">
+            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#1a1a1a]">
               {formattedTime}
             </h1>
-            <p className="text-sm font-medium text-gray-500">
+            <p className="text-xs sm:text-sm font-normal text-[#5c5f60]">
               {formattedDate}
             </p>
           </div>

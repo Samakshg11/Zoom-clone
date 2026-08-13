@@ -118,11 +118,22 @@ export default function ParticipantsDrawer({
         })}
       </div>
 
-      {/* Footer Mute All button */}
-      <div className="p-4 border-t border-[#444749] flex justify-center">
+      {/* Footer Actions */}
+      <div className="p-4 border-t border-[#444749] flex items-center gap-2">
+        <button
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              navigator.clipboard.writeText(window.location.href);
+              alert("Meeting invite link copied to clipboard!");
+            }
+          }}
+          className="bg-[#0E71EB] hover:bg-[#0059be] text-white font-semibold text-xs py-2 px-3 rounded transition-colors flex-1 text-center"
+        >
+          Copy Link
+        </button>
         <button
           onClick={() => alert("Muted all participants")}
-          className="bg-[#e2e0f6] hover:bg-[#d9d8ee] text-[#191a2a] font-semibold text-xs py-2 px-4 rounded transition-colors border border-[#444749] w-full"
+          className="bg-[#e2e0f6] hover:bg-[#d9d8ee] text-[#191a2a] font-semibold text-xs py-2 px-3 rounded transition-colors border border-[#444749] flex-1 text-center"
         >
           Mute All
         </button>
