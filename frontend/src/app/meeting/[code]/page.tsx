@@ -2,8 +2,11 @@
 
 import React, { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, AlertCircle } from 'lucide-react';
-import Header from '@/components/MeetingRoom/Header';
+import {
+  Loader2, AlertCircle, Info, ShieldCheck, Grid, Maximize2,
+  Home, Video, MessageSquare, MoreHorizontal, Settings
+} from 'lucide-react';
+import Navbar from '@/components/Navbar';
 import ParticipantGrid, { GridParticipant } from '@/components/MeetingRoom/ParticipantGrid';
 import ControlBar from '@/components/MeetingRoom/ControlBar';
 import ParticipantsDrawer from '@/components/MeetingRoom/ParticipantsDrawer';
@@ -20,8 +23,8 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
   const [error, setError] = useState<string | null>(null);
 
   // Control Bar States
-  const [isSelfMuted, setIsSelfMuted] = useState(false);
-  const [isSelfVideoOff, setIsSelfVideoOff] = useState(false);
+  const [isSelfMuted, setIsSelfMuted] = useState(true);
+  const [isSelfVideoOff, setIsSelfVideoOff] = useState(true);
 
   // Drawer States
   const [showParticipantsDrawer, setShowParticipantsDrawer] = useState(false);
@@ -49,13 +52,11 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
           return;
         }
 
-        // Direct Access Guard: check if user completed join flow with display name
         let displayName = '';
         if (typeof window !== 'undefined') {
           displayName = localStorage.getItem(`zoom_display_name_${data.meeting_code}`) || '';
         }
 
-        // If direct access without display name, redirect to join screen
         if (!displayName) {
           router.replace(`/join?code=${data.meeting_code}`);
           return;
@@ -64,17 +65,15 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
         setMeeting(data);
         setCurrentUserDisplayName(displayName);
 
-        // Build grid participants list
         const participantsList: GridParticipant[] = [
           {
             id: 'self',
             name: displayName,
             isHost: true,
             isSelf: true,
-            isMuted: false,
-            isVideoOff: false,
-            isSpeaking: false,
-            avatarBg: 'from-blue-600 to-indigo-700'
+            isMuted: true,
+            isVideoOff: true,
+            isSpeaking: false
           }
         ];
 
@@ -85,36 +84,12 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
                 id: p.id,
                 name: p.display_name,
                 isHost: false,
-                isMuted: idx % 2 === 0,
+                isMuted: true,
                 isVideoOff: true,
-                isSpeaking: idx === 0,
-                avatarBg: idx % 2 === 0 ? 'from-purple-600 to-pink-700' : 'from-emerald-600 to-teal-700'
+                isSpeaking: false
               });
             }
           });
-        }
-
-        if (participantsList.length === 1) {
-          participantsList.push(
-            {
-              id: 'p2',
-              name: 'Sarah Chen',
-              isHost: false,
-              isMuted: false,
-              isVideoOff: true,
-              isSpeaking: true,
-              avatarBg: 'from-emerald-600 to-teal-700'
-            },
-            {
-              id: 'p3',
-              name: 'Alex Rivera',
-              isHost: false,
-              isMuted: true,
-              isVideoOff: true,
-              isSpeaking: false,
-              avatarBg: 'from-purple-600 to-pink-700'
-            }
-          );
         }
 
         setGridParticipants(participantsList);
@@ -129,21 +104,6 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
     loadMeeting();
   }, [meetingCode, router]);
 
-  // Simulate active speaker shifts
-  useEffect(() => {
-    if (gridParticipants.length <= 1) return;
-    const interval = setInterval(() => {
-      setGridParticipants((prev) => {
-        return prev.map((p) => {
-          if (p.isSelf) return p;
-          const shouldSpeak = Math.random() > 0.5;
-          return { ...p, isSpeaking: !p.isMuted && shouldSpeak };
-        });
-      });
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [gridParticipants.length]);
-
   const handleLeaveMeeting = async () => {
     if (meetingCode) {
       await endMeeting(meetingCode);
@@ -153,8 +113,8 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#16191E] flex flex-col items-center justify-center text-white space-y-4 font-sans">
-        <Loader2 className="w-10 h-10 text-[#2D8CFF] animate-spin" />
+      <div className="min-h-screen bg-[#1c1d1f] flex flex-col items-center justify-center text-white space-y-4 font-sans">
+        <Loader2 className="w-10 h-10 text-[#0E71EB] animate-spin" />
         <p className="text-sm font-semibold text-gray-300">Connecting to Zoom Meeting Room ({meetingCode})...</p>
       </div>
     );
@@ -162,14 +122,14 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
 
   if (error || !meeting) {
     return (
-      <div className="min-h-screen bg-[#16191E] flex flex-col items-center justify-center text-white p-4 font-sans">
-        <div className="bg-[#242A32] rounded-3xl p-8 max-w-md w-full border border-gray-800 text-center space-y-4">
+      <div className="min-h-screen bg-[#1c1d1f] flex flex-col items-center justify-center text-white p-4 font-sans">
+        <div className="bg-[#242424] rounded-3xl p-8 max-w-md w-full border border-gray-800 text-center space-y-4 shadow-2xl">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
           <h2 className="text-xl font-bold text-gray-100">Unable to Join Meeting</h2>
           <p className="text-xs text-gray-400 leading-relaxed">{error}</p>
           <button
             onClick={() => router.push('/')}
-            className="px-6 py-2.5 bg-[#2D8CFF] hover:bg-[#0E71EB] text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+            className="px-6 py-2.5 bg-[#0E71EB] hover:bg-[#0059be] text-white font-bold text-xs rounded-xl shadow-xs transition-all"
           >
             Return to Dashboard
           </button>
@@ -179,63 +139,125 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
   }
 
   return (
-    <div className="h-screen w-screen bg-[#1A1E24] flex flex-col overflow-hidden font-sans">
+    <div className="h-screen w-screen bg-[#F7F8FA] flex flex-col overflow-hidden font-sans select-none">
       
-      {/* Top Header */}
-      <Header
-        title={meeting.title}
-        meetingCode={meeting.meeting_code}
-        participantCount={gridParticipants.length}
-      />
+      {/* Top Navbar */}
+      <Navbar />
 
-      {/* Main View Area */}
-      <div className="flex-1 flex overflow-hidden relative">
+      {/* Main Workspace Area with Left Sidebar */}
+      <div className="flex-1 flex overflow-hidden">
         
-        {/* Center Participant Tile Grid */}
-        <ParticipantGrid
-          participants={gridParticipants}
-          isSelfMuted={isSelfMuted}
-          isSelfVideoOff={isSelfVideoOff}
-        />
+        {/* Left Sidebar */}
+        <aside className="w-[72px] bg-[#F7F8FA] border-r border-gray-200/80 flex flex-col items-center justify-between py-4 select-none shrink-0 z-10">
+          <div className="flex flex-col items-center gap-2 w-full px-2">
+            <button
+              onClick={() => router.push('/')}
+              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all"
+            >
+              <Home className="w-5 h-5 mb-1" />
+              <span className="text-[10px] font-medium">Home</span>
+            </button>
 
-        {/* Side Drawer: Participants */}
-        <ParticipantsDrawer
-          isOpen={showParticipantsDrawer}
-          onClose={() => setShowParticipantsDrawer(false)}
-          participants={gridParticipants}
-          isSelfMuted={isSelfMuted}
-          isSelfVideoOff={isSelfVideoOff}
-        />
+            <button
+              onClick={() => router.push('/join')}
+              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl bg-white shadow-xs border border-gray-200/80 text-gray-900 font-semibold transition-all"
+            >
+              <Video className="w-5 h-5 mb-1" />
+              <span className="text-[10px] font-medium">Meetings</span>
+            </button>
 
-        {/* Side Drawer: Chat */}
-        <ChatDrawer
-          isOpen={showChatDrawer}
-          onClose={() => setShowChatDrawer(false)}
-          currentUser={currentUserDisplayName}
-        />
+            <button
+              onClick={() => setShowChatDrawer(!showChatDrawer)}
+              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all"
+            >
+              <MessageSquare className="w-5 h-5 mb-1" />
+              <span className="text-[10px] font-medium">Chat</span>
+            </button>
+
+            <button
+              onClick={() => alert("More tools & apps.")}
+              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all"
+            >
+              <MoreHorizontal className="w-5 h-5 mb-1" />
+              <span className="text-[10px] font-medium">More</span>
+            </button>
+          </div>
+
+          <button
+            onClick={() => router.push('/')}
+            className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 rounded-xl transition-colors"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </aside>
+
+        {/* Meeting Stage Canvas */}
+        <div className="flex-1 bg-[#1C1D1F] flex flex-col overflow-hidden relative pb-[64px]">
+          
+          {/* Top Bar inside Meeting Canvas */}
+          <div className="flex items-center justify-between px-4 py-2 bg-[#141414] text-white border-b border-gray-800 text-xs shrink-0">
+            <div className="flex items-center gap-2 font-medium truncate">
+              <Info className="w-4 h-4 text-gray-400 shrink-0" />
+              <span className="truncate">{meeting.title}</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-400">
+              <ShieldCheck className="w-4 h-4 text-emerald-500 cursor-pointer" title="Encrypted" />
+              <Grid className="w-4 h-4 hover:text-white cursor-pointer" title="View" />
+              <Maximize2 className="w-4 h-4 hover:text-white cursor-pointer" title="Fullscreen" />
+            </div>
+          </div>
+
+          {/* Canvas Center View with Tiles */}
+          <div className="flex-1 flex overflow-hidden relative">
+            <ParticipantGrid
+              participants={gridParticipants}
+              isSelfMuted={isSelfMuted}
+              isSelfVideoOff={isSelfVideoOff}
+            />
+
+            {/* Side Drawer: Participants */}
+            <ParticipantsDrawer
+              isOpen={showParticipantsDrawer}
+              onClose={() => setShowParticipantsDrawer(false)}
+              participants={gridParticipants}
+              isSelfMuted={isSelfMuted}
+              isSelfVideoOff={isSelfVideoOff}
+            />
+
+            {/* Side Drawer: Chat */}
+            <ChatDrawer
+              isOpen={showChatDrawer}
+              onClose={() => setShowChatDrawer(false)}
+              currentUser={currentUserDisplayName}
+            />
+          </div>
+
+          {/* Bottom Toolbar */}
+          <ControlBar
+            isMuted={isSelfMuted}
+            onToggleMute={() => setIsSelfMuted(!isSelfMuted)}
+            isVideoOff={isSelfVideoOff}
+            onToggleVideo={() => setIsSelfVideoOff(!isSelfVideoOff)}
+            participantCount={gridParticipants.length}
+            showParticipantsDrawer={showParticipantsDrawer}
+            onToggleParticipantsDrawer={() => {
+              setShowParticipantsDrawer(!showParticipantsDrawer);
+              if (showChatDrawer) setShowChatDrawer(false);
+            }}
+            showChatDrawer={showChatDrawer}
+            onToggleChatDrawer={() => {
+              setShowChatDrawer(!showChatDrawer);
+              if (showParticipantsDrawer) setShowParticipantsDrawer(false);
+            }}
+            onLeave={handleLeaveMeeting}
+          />
+
+        </div>
 
       </div>
-
-      {/* Bottom Control Toolbar */}
-      <ControlBar
-        isMuted={isSelfMuted}
-        onToggleMute={() => setIsSelfMuted(!isSelfMuted)}
-        isVideoOff={isSelfVideoOff}
-        onToggleVideo={() => setIsSelfVideoOff(!isSelfVideoOff)}
-        participantCount={gridParticipants.length}
-        showParticipantsDrawer={showParticipantsDrawer}
-        onToggleParticipantsDrawer={() => {
-          setShowParticipantsDrawer(!showParticipantsDrawer);
-          if (showChatDrawer) setShowChatDrawer(false);
-        }}
-        showChatDrawer={showChatDrawer}
-        onToggleChatDrawer={() => {
-          setShowChatDrawer(!showChatDrawer);
-          if (showParticipantsDrawer) setShowParticipantsDrawer(false);
-        }}
-        onLeave={handleLeaveMeeting}
-      />
 
     </div>
   );
 }
+

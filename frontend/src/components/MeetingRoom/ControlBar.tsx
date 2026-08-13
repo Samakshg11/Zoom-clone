@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Mic, MicOff, Video, VideoOff, Users, MessageSquare, 
-  PhoneOff, MonitorUp 
+import {
+  Mic, MicOff, Video, VideoOff, Users, MessageSquare,
+  ChevronUp, ArrowUpFromLine, Smile, Shield, Sparkles, MoreHorizontal, X
 } from 'lucide-react';
 
 interface ControlBarProps {
@@ -35,7 +35,7 @@ export default function ControlBar({
   const router = useRouter();
 
   const handleLeave = () => {
-    if (confirm("Are you sure you want to leave and end this meeting?")) {
+    if (confirm("Are you sure you want to end this meeting?")) {
       if (onLeave) {
         onLeave();
       } else {
@@ -44,95 +44,138 @@ export default function ControlBar({
     }
   };
 
-  const handleShareScreenPlaceholder = () => {
-    alert("Screen Sharing active in room.");
-  };
-
   return (
-    <footer className="bg-[#16191E] border-t border-gray-800/80 px-4 py-3 text-white flex items-center justify-between z-30 shrink-0 select-none">
+    <nav className="fixed bottom-0 left-[72px] right-0 z-50 flex items-center justify-between px-4 py-1.5 bg-[#0a0a0a] shadow-lg h-[64px] border-t border-gray-800 text-white select-none">
       
-      {/* Audio & Video Controls */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        
-        {/* Mute Button */}
-        <button
-          onClick={onToggleMute}
-          className={`flex flex-col items-center justify-center px-3 py-1.5 rounded-xl hover:bg-gray-800/80 transition-colors ${
-            isMuted ? 'text-red-400' : 'text-gray-200 hover:text-white'
-          }`}
-          title={isMuted ? 'Unmute Microphone' : 'Mute Microphone'}
-        >
-          {isMuted ? <MicOff className="w-5 h-5 text-red-400" /> : <Mic className="w-5 h-5 text-green-400" />}
-          <span className="text-[10px] font-medium mt-0.5">{isMuted ? 'Unmute' : 'Mute'}</span>
-        </button>
+      {/* Left Group: Audio & Video with dark pill background */}
+      <div className="flex items-center gap-2">
+        {/* Audio */}
+        <div className="flex items-center bg-[#1c1d1f] hover:bg-[#2a2b2e] rounded-lg p-1 transition-colors">
+          <button
+            onClick={onToggleMute}
+            className={`flex flex-col items-center justify-center px-2 py-1 ${
+              isMuted ? 'text-red-500' : 'text-white'
+            }`}
+            title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
+          >
+            {isMuted ? <MicOff className="w-5 h-5 text-red-500" /> : <Mic className="w-5 h-5 text-white" />}
+            <span className="text-[10px] font-normal mt-0.5">Audio</span>
+          </button>
+          <button className="text-gray-400 hover:text-white px-1">
+            <ChevronUp className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
-        {/* Video Button */}
-        <button
-          onClick={onToggleVideo}
-          className={`flex flex-col items-center justify-center px-3 py-1.5 rounded-xl hover:bg-gray-800/80 transition-colors ${
-            isVideoOff ? 'text-red-400' : 'text-gray-200 hover:text-white'
-          }`}
-          title={isVideoOff ? 'Start Video' : 'Stop Video'}
-        >
-          {isVideoOff ? <VideoOff className="w-5 h-5 text-red-400" /> : <Video className="w-5 h-5 text-[#2D8CFF]" />}
-          <span className="text-[10px] font-medium mt-0.5">{isVideoOff ? 'Start Video' : 'Stop Video'}</span>
-        </button>
-
+        {/* Video */}
+        <div className="flex items-center bg-[#1c1d1f] hover:bg-[#2a2b2e] rounded-lg p-1 transition-colors">
+          <button
+            onClick={onToggleVideo}
+            className={`flex flex-col items-center justify-center px-2 py-1 ${
+              isVideoOff ? 'text-red-500' : 'text-white'
+            }`}
+            title={isVideoOff ? 'Start Video' : 'Stop Video'}
+          >
+            {isVideoOff ? <VideoOff className="w-5 h-5 text-red-500" /> : <Video className="w-5 h-5 text-white" />}
+            <span className="text-[10px] font-normal mt-0.5">Video</span>
+          </button>
+          <button className="text-gray-400 hover:text-white px-1">
+            <ChevronUp className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
-      {/* Middle Interactive Toolbar */}
-      <div className="flex items-center gap-1 sm:gap-2">
-        
-        {/* Participants Button */}
+      {/* Center Group: Toolbar controls */}
+      <div className="flex items-center gap-1 sm:gap-3">
+        {/* Participants */}
         <button
           onClick={onToggleParticipantsDrawer}
-          className={`relative flex flex-col items-center justify-center px-3 py-1.5 rounded-xl transition-colors ${
-            showParticipantsDrawer ? 'bg-[#2D8CFF]/20 text-[#2D8CFF] border border-[#2D8CFF]/40' : 'hover:bg-gray-800/80 text-gray-300 hover:text-white'
+          className={`flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] transition-all min-w-[56px] ${
+            showParticipantsDrawer ? 'text-[#0E71EB]' : 'text-gray-200'
           }`}
         >
           <div className="relative">
             <Users className="w-5 h-5" />
-            <span className="absolute -top-1 -right-2.5 bg-[#2D8CFF] text-white text-[9px] font-bold px-1.5 py-0.2 rounded-full">
+            <span className="absolute -top-1 -right-2 bg-gray-700 text-white text-[9px] font-bold px-1 rounded-full">
               {participantCount}
             </span>
           </div>
-          <span className="text-[10px] font-medium mt-0.5">Participants</span>
+          <span className="text-[10px] font-normal mt-0.5">Participants</span>
         </button>
 
-        {/* Chat Button */}
+        {/* Chat */}
         <button
           onClick={onToggleChatDrawer}
-          className={`flex flex-col items-center justify-center px-3 py-1.5 rounded-xl transition-colors ${
-            showChatDrawer ? 'bg-[#2D8CFF]/20 text-[#2D8CFF] border border-[#2D8CFF]/40' : 'hover:bg-gray-800/80 text-gray-300 hover:text-white'
+          className={`flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] transition-all min-w-[56px] ${
+            showChatDrawer ? 'text-[#0E71EB]' : 'text-gray-200'
           }`}
         >
           <MessageSquare className="w-5 h-5" />
-          <span className="text-[10px] font-medium mt-0.5">Chat</span>
+          <span className="text-[10px] font-normal mt-0.5">Chat</span>
         </button>
 
-        {/* Screen Share Button */}
+        {/* React */}
         <button
-          onClick={handleShareScreenPlaceholder}
-          className="flex flex-col items-center justify-center px-3 py-1.5 rounded-xl hover:bg-gray-800/80 text-green-400 hover:text-green-300 transition-colors"
-          title="Share Screen"
+          onClick={() => alert("Reactions menu.")}
+          className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] text-gray-200 transition-all min-w-[56px]"
         >
-          <MonitorUp className="w-5 h-5 text-green-400" />
-          <span className="text-[10px] font-medium mt-0.5 text-green-400">Share Screen</span>
+          <Smile className="w-5 h-5" />
+          <span className="text-[10px] font-normal mt-0.5">React</span>
         </button>
 
+        {/* Share */}
+        <button
+          onClick={() => alert("Screen sharing active.")}
+          className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] text-emerald-400 transition-all min-w-[56px]"
+        >
+          <div className="bg-emerald-500 text-black p-1 rounded-md mb-0.5">
+            <ArrowUpFromLine className="w-4 h-4 stroke-[3]" />
+          </div>
+          <span className="text-[10px] font-normal text-white">Share</span>
+        </button>
+
+        {/* Host tools */}
+        <button
+          onClick={() => alert("Host tools menu.")}
+          className="hidden md:flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] text-gray-200 transition-all min-w-[56px]"
+        >
+          <Shield className="w-5 h-5" />
+          <span className="text-[10px] font-normal mt-0.5">Host tools</span>
+        </button>
+
+        {/* Zoom AI */}
+        <button
+          onClick={() => alert("Zoom AI companion active.")}
+          className="hidden md:flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] text-gray-200 transition-all min-w-[56px]"
+        >
+          <Sparkles className="w-5 h-5 text-indigo-300" />
+          <span className="text-[10px] font-normal mt-0.5">Zoom AI</span>
+        </button>
+
+        {/* More */}
+        <button
+          className="flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] text-gray-200 transition-all min-w-[56px]"
+        >
+          <MoreHorizontal className="w-5 h-5" />
+          <span className="text-[10px] font-normal mt-0.5">More</span>
+        </button>
       </div>
 
-      {/* Leave Meeting Button */}
+      {/* Right Group: Red End Button */}
       <div className="flex items-center">
         <button
           onClick={handleLeave}
-          className="px-4 py-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold text-xs rounded-xl shadow-md shadow-red-600/30 transition-all flex items-center gap-1.5"
+          className="flex flex-col items-center justify-center text-red-500 hover:text-red-400 transition-colors p-1"
+          title="End Meeting"
         >
-          <PhoneOff className="w-4 h-4 fill-current" />
-          <span>Leave</span>
+          <div className="w-7 h-7 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-md mb-0.5">
+            <X className="w-4 h-4 stroke-[3]" />
+          </div>
+          <span className="text-[10px] font-semibold text-white">End</span>
         </button>
       </div>
 
-    </footer>
+    </nav>
   );
 }
+
+

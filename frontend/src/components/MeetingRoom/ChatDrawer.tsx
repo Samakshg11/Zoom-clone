@@ -48,17 +48,16 @@ export default function ChatDrawer({ isOpen, onClose, currentUser }: ChatDrawerP
   };
 
   return (
-    <aside className="w-80 bg-[#1E242C] border-l border-gray-800 text-white flex flex-col z-20 shrink-0 h-full animate-in slide-in-from-right duration-200">
-      
+    <aside className="w-[320px] bg-[#242424] border-l border-[#444749] text-white flex flex-col z-20 shrink-0 h-full animate-in slide-in-from-right duration-200">
       {/* Header */}
-      <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-        <div className="flex items-center gap-2 font-bold text-sm">
-          <MessageSquare className="w-4 h-4 text-[#2D8CFF]" />
+      <div className="p-4 border-b border-[#444749] flex items-center justify-between">
+        <div className="flex items-center gap-2 font-semibold text-sm">
+          <MessageSquare className="w-4 h-4 text-[#0e71eb]" />
           <span>In-Meeting Chat</span>
         </div>
-        <button 
+        <button
           onClick={onClose}
-          className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800"
+          className="text-[#c5c6c8] hover:text-white p-1 rounded-md hover:bg-[#323232]"
         >
           <X className="w-4 h-4" />
         </button>
@@ -69,17 +68,17 @@ export default function ChatDrawer({ isOpen, onClose, currentUser }: ChatDrawerP
         {messages.map((msg) => (
           <div key={msg.id} className="space-y-1">
             {msg.isSystem ? (
-              <div className="p-3 bg-blue-950/40 border border-blue-800/40 rounded-xl text-xs text-blue-200 flex items-start gap-2">
-                <Bot className="w-4 h-4 text-[#2D8CFF] shrink-0 mt-0.5" />
+              <div className="p-3 bg-[#1a1a1a] border border-[#444749] rounded-lg text-xs text-[#c5c6c8] flex items-start gap-2">
+                <Bot className="w-4 h-4 text-[#0e71eb] shrink-0 mt-0.5" />
                 <p className="leading-relaxed">{msg.text}</p>
               </div>
             ) : (
-              <div className="bg-gray-800/60 p-3 rounded-xl border border-gray-800 space-y-1">
+              <div className="bg-[#1a1a1a] p-3 rounded-lg border border-[#444749] space-y-1">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-bold text-[#2D8CFF]">{msg.sender}</span>
-                  <span className="text-gray-500 font-mono text-[10px]">{msg.time}</span>
+                  <span className="font-semibold text-[#0e71eb]">{msg.sender}</span>
+                  <span className="text-[#767575] text-[10px]">{msg.time}</span>
                 </div>
-                <p className="text-xs text-gray-200 leading-relaxed break-words">{msg.text}</p>
+                <p className="text-xs text-white leading-relaxed break-words">{msg.text}</p>
               </div>
             )}
           </div>
@@ -87,23 +86,23 @@ export default function ChatDrawer({ isOpen, onClose, currentUser }: ChatDrawerP
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleSend} className="p-3 border-t border-gray-800 flex gap-2">
+      <form onSubmit={handleSend} className="p-3 border-t border-[#444749] flex gap-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type message here..."
-          className="flex-1 px-3.5 py-2 bg-gray-900 border border-gray-700 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-hidden focus:ring-1 focus:ring-[#2D8CFF]"
+          className="flex-1 px-3 py-2 bg-[#1a1a1a] border border-[#444749] rounded text-xs text-white placeholder-[#767575] focus:outline-none focus:border-[#0e71eb] focus:ring-1 focus:ring-[#0e71eb]"
         />
         <button
           type="submit"
           disabled={!input.trim()}
-          className="px-3.5 py-2 bg-[#2D8CFF] hover:bg-[#0E71EB] disabled:opacity-50 text-white rounded-xl text-xs font-semibold transition-colors flex items-center justify-center"
+          className="px-3.5 py-2 bg-[#0e71eb] hover:bg-[#0059be] disabled:opacity-50 text-white rounded text-xs font-semibold transition-colors flex items-center justify-center"
         >
           <Send className="w-3.5 h-3.5" />
         </button>
       </form>
-
     </aside>
   );
 }
+

@@ -3,14 +3,17 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Video, ArrowLeft, Loader2, AlertCircle, User, KeyRound } from 'lucide-react';
+import {
+  Video, ArrowLeft, Loader2, AlertCircle, User, KeyRound,
+  Home, MessageSquare, MoreHorizontal, Settings
+} from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { fetchMeetingDetails, joinMeeting } from '@/lib/api';
 
 function JoinContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [meetingInput, setMeetingInput] = useState('');
   const [displayName, setDisplayName] = useState('Demo Guest');
   const [loading, setLoading] = useState(false);
@@ -80,15 +83,15 @@ function JoinContent() {
   };
 
   return (
-    <div className="max-w-md w-full mx-auto my-12 px-4">
+    <div className="max-w-md w-full my-8 px-4">
       <div className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-xs space-y-6">
         
         <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-          <Link href="/" className="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-[#2D8CFF] transition-colors">
+          <Link href="/" className="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-[#0E71EB] transition-colors">
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Dashboard</span>
           </Link>
-          <div className="flex items-center gap-1 text-[#2D8CFF] font-bold text-sm">
+          <div className="flex items-center gap-1 text-[#0E71EB] font-bold text-sm">
             <Video className="w-4 h-4 fill-current" />
             <span>Zoom Join</span>
           </div>
@@ -120,7 +123,7 @@ function JoinContent() {
                 value={meetingInput}
                 onChange={(e) => setMeetingInput(e.target.value)}
                 placeholder="e.g. 982-415-307"
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:outline-hidden focus:ring-2 focus:ring-[#2D8CFF] focus:bg-white transition-all text-gray-900 font-semibold"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#0E71EB] focus:bg-white transition-all text-gray-900 font-semibold"
               />
             </div>
           </div>
@@ -137,7 +140,7 @@ function JoinContent() {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="e.g. Alex Rivera"
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-[#2D8CFF] focus:bg-white transition-all text-gray-900 font-medium"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0E71EB] focus:bg-white transition-all text-gray-900 font-medium"
               />
             </div>
           </div>
@@ -146,7 +149,7 @@ function JoinContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-[#2D8CFF] hover:bg-[#0E71EB] text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-[#0E71EB] hover:bg-[#0059be] text-white font-bold text-sm rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -173,18 +176,74 @@ function JoinContent() {
 }
 
 export default function JoinPage() {
+  const router = useRouter();
+
   return (
-    <div className="min-h-screen bg-[#F9F9FA] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F7F8FA] flex flex-col font-sans">
       <Navbar />
-      <main className="flex-1 flex items-center justify-center">
-        <Suspense fallback={
-          <div className="flex items-center justify-center p-12">
-            <Loader2 className="w-6 h-6 text-[#2D8CFF] animate-spin" />
+
+      <div className="flex-1 flex overflow-hidden">
+        
+        {/* Left Sidebar */}
+        <aside className="w-[72px] bg-[#F7F8FA] border-r border-gray-200/80 flex flex-col items-center justify-between py-4 select-none shrink-0">
+          <div className="flex flex-col items-center gap-2 w-full px-2">
+            
+            <button
+              onClick={() => router.push('/')}
+              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all"
+            >
+              <Home className="w-5 h-5 mb-1" />
+              <span className="text-[10px] font-medium">Home</span>
+            </button>
+
+            <button
+              onClick={() => router.push('/join')}
+              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl bg-white shadow-xs border border-gray-200/80 text-gray-900 font-semibold transition-all"
+            >
+              <Video className="w-5 h-5 mb-1" />
+              <span className="text-[10px] font-medium">Meetings</span>
+            </button>
+
+            <button
+              onClick={() => alert("Chat drawer.")}
+              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all"
+            >
+              <MessageSquare className="w-5 h-5 mb-1" />
+              <span className="text-[10px] font-medium">Chat</span>
+            </button>
+
+            <button
+              onClick={() => alert("More tools & apps.")}
+              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all"
+            >
+              <MoreHorizontal className="w-5 h-5 mb-1" />
+              <span className="text-[10px] font-medium">More</span>
+            </button>
+
           </div>
-        }>
-          <JoinContent />
-        </Suspense>
-      </main>
+
+          <button
+            onClick={() => router.push('/')}
+            className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 rounded-xl transition-colors"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </aside>
+
+        {/* Content Area */}
+        <main className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
+          <Suspense fallback={
+            <div className="flex items-center justify-center p-12">
+              <Loader2 className="w-6 h-6 text-[#0E71EB] animate-spin" />
+            </div>
+          }>
+            <JoinContent />
+          </Suspense>
+        </main>
+
+      </div>
     </div>
   );
 }
+
