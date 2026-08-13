@@ -248,9 +248,9 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
                 )}
               </button>
               <div className="w-px h-4 bg-gray-700 hidden sm:block" />
-              <ShieldCheck className="w-4 h-4 text-emerald-500 cursor-pointer" title="Encrypted" />
-              <Grid className="w-4 h-4 text-gray-400 hover:text-white cursor-pointer" title="View" />
-              <Maximize2 className="w-4 h-4 text-gray-400 hover:text-white cursor-pointer" title="Fullscreen" />
+              <ShieldCheck className="w-4 h-4 text-emerald-500 cursor-pointer"/>
+              <Grid className="w-4 h-4 text-gray-400 hover:text-white cursor-pointer"/>
+              <Maximize2 className="w-4 h-4 text-gray-400 hover:text-white cursor-pointer"  />
             </div>
           </div>
 
