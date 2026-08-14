@@ -285,7 +285,13 @@ export default function Dashboard() {
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-1 font-semibold text-sm text-gray-900">
                 <span>Today, {shortDateHeader}</span>
-                <ChevronDown className="w-4 h-4 text-gray-400 cursor-pointer" />
+                <button
+                  onClick={() => setShowCalendarMenu((previous) => !previous)}
+                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Calendar options"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
               </div>
               <button
                 onClick={() => router.push('/schedule')}
@@ -444,10 +450,10 @@ export default function Dashboard() {
             {/* Card Footer Link */}
             <div className="px-6 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center">
               <button
-                onClick={() => router.push('/join')}
+                onClick={() => router.push('/schedule')}
                 className="text-xs font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1 transition-colors"
               >
-                <span>Open recordings</span>
+                <span>Open schedule</span>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
               </button>
             </div>
