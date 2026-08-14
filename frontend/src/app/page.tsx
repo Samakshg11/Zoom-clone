@@ -7,7 +7,8 @@ import {
   Video, Plus, Copy, Check,
   Settings, Home, MessageSquare,
   Info, Play,
-  Loader2, Hash, Trash2
+  Loader2, Hash, Trash2,
+  MoreHorizontal, ChevronDown, ChevronRight
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { fetchUpcomingMeetings, fetchRecentMeetings, createInstantMeeting, cancelMeeting, Meeting } from '@/lib/api';
