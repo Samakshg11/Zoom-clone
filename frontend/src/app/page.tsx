@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Video, Plus, Calendar as CalendarIcon, Copy, Check,
-  ChevronDown, ExternalLink, Settings, Home, MessageSquare,
-  MoreHorizontal, Info, ChevronLeft, ChevronRight, Play,
+  Video, Plus, Copy, Check,
+  Settings, Home, MessageSquare,
+  Info, Play,
   Loader2, Hash, Trash2
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -21,8 +21,6 @@ export default function Dashboard() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
-  const [viewDate, setViewDate] = useState<Date>(() => new Date());
-  const [showCalendarPanel, setShowCalendarPanel] = useState(false);
   const [activeTab, setActiveTab] = useState<'home' | 'meetings' | 'chat'>('home');
 
   const handleDeleteMeeting = async (meetingCode: string) => {
@@ -252,65 +250,21 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Calendar & Scheduled Meetings Widget Card */}
+          {/* Scheduled Meetings Widget Card */}
           <div className="w-full max-w-2xl bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden">
             
             {/* Card Top Title Bar */}
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
               <div className="flex items-center gap-1 font-semibold text-sm text-gray-900">
-                <span>Today, {shortDateHeader}</span>
-                <button
-                  onClick={() => setShowCalendarMenu((previous) => !previous)}
-                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                  title="Calendar options"
-                >
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+                <span>Upcoming meetings</span>
               </div>
               <button
-                onClick={() => router.push('/schedule')}
+                onClick={loadDashboardData}
                 className="text-gray-400 hover:text-gray-600 transition-colors p-1"
-                title="Open calendar"
+                title="Refresh meetings"
               >
-                <ExternalLink className="w-4 h-4" />
+                <Loader2 className="w-4 h-4" />
               </button>
-            </div>
-
-            {/* Card Toolbar Controls */}
-            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between text-xs text-gray-600 relative">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={goToToday}
-                  className="flex items-center gap-1.5 px-3 py-1 bg-gray-50 border border-gray-200 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-                >
-                  <CalendarIcon className="w-3.5 h-3.5 text-gray-500" />
-                  <span>Today</span>
-                </button>
-                <div className="flex items-center gap-1 text-gray-400">
-                  <button
-                    onClick={() => shiftViewDate(-1)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                    title="Previous day"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => shiftViewDate(1)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                    title="Next day"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowCalendarPanel((previous) => !previous)}
-                className="p-1 text-gray-400 hover:text-gray-600"
-                title="Show calendar"
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
-
             </div>
 
             {/* Meetings List / Empty State */}
