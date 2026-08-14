@@ -229,84 +229,85 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Visible Calendar Panel */}
-          <div className="w-full max-w-2xl bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.2em] text-gray-400 font-semibold">Calendar</p>
-                <h2 className="text-base font-semibold text-gray-900">{calendarMonthLabel}</h2>
+          {showCalendarPanel && (
+            <div className="w-full max-w-2xl bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-gray-400 font-semibold">Calendar</p>
+                  <h2 className="text-base font-semibold text-gray-900">{calendarMonthLabel}</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={goToToday}
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    Today
+                  </button>
+                  <button
+                    onClick={() => shiftCalendarMonth(-1)}
+                    className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                    title="Previous month"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => shiftCalendarMonth(1)}
+                    className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                    title="Next month"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={goToToday}
-                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors"
-                >
-                  Today
-                </button>
-                <button
-                  onClick={() => shiftCalendarMonth(-1)}
-                  className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-                  title="Previous month"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => shiftCalendarMonth(1)}
-                  className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-                  title="Next month"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+
+              <div className="p-4">
+                <div className="grid grid-cols-7 gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayLabel) => (
+                    <div key={dayLabel} className="text-center py-1">{dayLabel}</div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-7 gap-1.5">
+                  {calendarCells.map((date, index) => {
+                    if (!date) {
+                      return <div key={`empty-${index}`} className="h-12 rounded-xl bg-gray-50/60" />;
+                    }
+
+                    const isToday = date.toDateString() === calendarToday.toDateString();
+                    const isSelected = date.toDateString() === viewDate.toDateString();
+
+                    return (
+                      <button
+                        key={date.toISOString()}
+                        onClick={() => selectCalendarDay(date)}
+                        className={`h-12 rounded-xl border text-sm font-medium transition-all ${
+                          isSelected
+                            ? 'bg-[#0E71EB] text-white border-[#0E71EB] shadow-sm'
+                            : isToday
+                              ? 'bg-blue-50 text-[#0E71EB] border-blue-200 hover:bg-blue-100'
+                              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                        }`}
+                      >
+                        {date.getDate()}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <p className="text-xs text-gray-500">
+                    Selected: {viewDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </p>
+                  <button
+                    onClick={() => router.push('/schedule')}
+                    className="text-xs font-semibold text-[#0E71EB] hover:text-[#0059be]"
+                  >
+                    Open full schedule
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div className="p-4">
-              <div className="grid grid-cols-7 gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayLabel) => (
-                  <div key={dayLabel} className="text-center py-1">{dayLabel}</div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-7 gap-1.5">
-                {calendarCells.map((date, index) => {
-                  if (!date) {
-                    return <div key={`empty-${index}`} className="h-12 rounded-xl bg-gray-50/60" />;
-                  }
-
-                  const isToday = date.toDateString() === calendarToday.toDateString();
-                  const isSelected = date.toDateString() === viewDate.toDateString();
-
-                  return (
-                    <button
-                      key={date.toISOString()}
-                      onClick={() => selectCalendarDay(date)}
-                      className={`h-12 rounded-xl border text-sm font-medium transition-all ${
-                        isSelected
-                          ? 'bg-[#0E71EB] text-white border-[#0E71EB] shadow-sm'
-                          : isToday
-                            ? 'bg-blue-50 text-[#0E71EB] border-blue-200 hover:bg-blue-100'
-                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                      }`}
-                    >
-                      {date.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <p className="text-xs text-gray-500">
-                  Selected: {viewDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                </p>
-                <button
-                  onClick={() => router.push('/schedule')}
-                  className="text-xs font-semibold text-[#0E71EB] hover:text-[#0059be]"
-                >
-                  Open full schedule
-                </button>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Calendar & Scheduled Meetings Widget Card */}
           <div className="w-full max-w-2xl bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden">
@@ -371,86 +372,7 @@ export default function Dashboard() {
 
             {/* Meetings List / Empty State */}
             <div id="dashboard-meetings" className="p-6">
-              {loading ? (
-                <div className="text-center py-8 text-xs text-gray-400 flex flex-col items-center gap-2">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#0E71EB]" />
-                  <span>Loading scheduled meetings...</span>
-                </div>
               ) : upcomingMeetings.length > 0 ? (
-                {showCalendarPanel && (
-                  <div className="w-full max-w-2xl bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden">
-                    <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-[11px] uppercase tracking-[0.2em] text-gray-400 font-semibold">Calendar</p>
-                        <h2 className="text-base font-semibold text-gray-900">{calendarMonthLabel}</h2>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={goToToday}
-                          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors"
-                        >
-                          Today
-                        </button>
-                        <button
-                          onClick={() => shiftCalendarMonth(-1)}
-                          className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-                          title="Previous month"
-                        >
-                          <ChevronLeft className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => shiftCalendarMonth(1)}
-                          className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-                          title="Next month"
-                        >
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-4">
-                      <div className="grid grid-cols-7 gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayLabel) => (
-                          <div key={dayLabel} className="text-center py-1">{dayLabel}</div>
-                        ))}
-                      </div>
-
-                      <div className="grid grid-cols-7 gap-1.5">
-                        {calendarCells.map((date, index) => {
-                          if (!date) {
-                            return <div key={`empty-${index}`} className="h-12 rounded-xl bg-gray-50/60" />;
-                          }
-
-                          const isToday = date.toDateString() === calendarToday.toDateString();
-                          const isSelected = date.toDateString() === viewDate.toDateString();
-
-                          return (
-                            <button
-                              key={date.toISOString()}
-                              onClick={() => selectCalendarDay(date)}
-                              className={`h-12 rounded-xl border text-sm font-medium transition-all ${
-                                isSelected
-                                  ? 'bg-[#0E71EB] text-white border-[#0E71EB] shadow-sm'
-                                  : isToday
-                                    ? 'bg-blue-50 text-[#0E71EB] border-blue-200 hover:bg-blue-100'
-                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                              }`}
-                            >
-                              {date.getDate()}
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      <div className="mt-4 flex items-center justify-between gap-3">
-                        <p className="text-xs text-gray-500">
-                          Selected: {viewDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                        </p>
-                        <button
-                          onClick={() => router.push('/schedule')}
-                          className="text-xs font-semibold text-[#0E71EB] hover:text-[#0059be]"
-                        >
-                          Open full schedule
                         </button>
                       </div>
                     </div>
