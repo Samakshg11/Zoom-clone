@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   Video, Plus, Copy, Check,
   Settings, Home, MessageSquare,
-  Info,
+  Info, Calendar, RotateCw,
   Loader2, Hash, Trash2,
   MoreHorizontal, ChevronDown, ChevronRight
 } from 'lucide-react';
@@ -272,15 +272,22 @@ export default function Dashboard() {
             
             {/* Card Top Title Bar */}
             <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-1 font-semibold text-sm text-gray-900">
+              <div className="flex items-center gap-2 font-semibold text-sm text-gray-900">
+                <Calendar className="w-4 h-4 text-[#0E71EB]" />
                 <span>Upcoming meetings</span>
+                {upcomingMeetings.length > 0 && (
+                  <span className="px-2 py-0.5 text-[11px] font-semibold text-[#0E71EB] bg-blue-50 rounded-full border border-blue-100">
+                    {upcomingMeetings.length}
+                  </span>
+                )}
               </div>
               <button
                 onClick={loadDashboardData}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                disabled={loading}
+                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors group flex items-center justify-center disabled:opacity-50"
                 title="Refresh meetings"
               >
-                <Loader2 className="w-4 h-4" />
+                <RotateCw className={`w-3.5 h-3.5 transition-transform ${loading ? 'animate-spin text-[#0E71EB]' : ''}`} />
               </button>
             </div>
 
