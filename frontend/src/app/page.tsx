@@ -8,7 +8,8 @@ import {
   Settings, Home, MessageSquare,
   Info, Calendar, RotateCw,
   Loader2, Hash, Trash2,
-  MoreHorizontal, ChevronDown, ChevronRight
+  MoreHorizontal, ChevronDown, ChevronRight,
+  X, CheckCircle2, Sparkles, Shield, Zap, Send, Layers
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { fetchUpcomingMeetings, fetchRecentMeetings, createInstantMeeting, cancelMeeting, Meeting } from '@/lib/api';
@@ -23,6 +24,15 @@ export default function Dashboard() {
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<'home' | 'meetings' | 'chat'>('home');
+
+  const [showNewMeetingMenu, setShowNewMeetingMenu] = useState(false);
+  const [showMoreToolsModal, setShowMoreToolsModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState([
+    { id: 1, sender: 'Alex Johnson', text: 'Welcome to Zoom Team Chat!', time: '10:14 AM' },
+    { id: 2, sender: 'Sarah Connor', text: 'Schedule is set for Q3 Product Review.', time: '10:18 AM' }
+  ]);
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -96,6 +106,16 @@ export default function Dashboard() {
     setTimeout(() => setCopiedCode(null), 2500);
   };
 
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+    setChatMessages((prev) => [
+      ...prev,
+      { id: Date.now(), sender: 'Demo Host (You)', text: chatInput.trim(), time: 'Just now' }
+    ]);
+    setChatInput('');
+  };
+
   const formattedTime = currentTime
     ? currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
     : '12:37 AM';
@@ -119,7 +139,7 @@ export default function Dashboard() {
             {/* Home Tab */}
             <button
               onClick={() => setActiveTab('home')}
-              className={`w-full flex flex-col items-center justify-center py-2.5 rounded-xl transition-all ${
+              className={`w-full flex flex-col items-center justify-center py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'home'
                   ? 'bg-white shadow-xs border border-gray-200/80 text-gray-900 font-semibold'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
@@ -131,8 +151,8 @@ export default function Dashboard() {
 
             {/* Meetings Tab */}
             <button
-              onClick={() => router.push('/join')}
-              className={`w-full flex flex-col items-center justify-center py-2.5 rounded-xl transition-all ${
+              onClick={() => router.push('/schedule')}
+              className={`w-full flex flex-col items-center justify-center py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'meetings'
                   ? 'bg-white shadow-xs border border-gray-200/80 text-gray-900 font-semibold'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
@@ -144,8 +164,8 @@ export default function Dashboard() {
 
             {/* Chat Tab */}
             <button
-              onClick={() => setActiveTab('chat')}
-              className={`w-full flex flex-col items-center justify-center py-2.5 rounded-xl transition-all ${
+              onClick={() => setActiveTab(activeTab === 'chat' ? 'home' : 'chat')}
+              className={`w-full flex flex-col items-center justify-center py-2.5 rounded-xl transition-all cursor-pointer ${
                 activeTab === 'chat'
                   ? 'bg-white shadow-xs border border-gray-200/80 text-gray-900 font-semibold'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
@@ -157,8 +177,8 @@ export default function Dashboard() {
 
             {/* More Tab */}
             <button
-              onClick={() => alert("More tools & apps.")}
-              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all"
+              onClick={() => setShowMoreToolsModal(true)}
+              className="w-full flex flex-col items-center justify-center py-2.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 transition-all cursor-pointer"
             >
               <MoreHorizontal className="w-5 h-5 mb-1" />
               <span className="text-[10px] font-medium">More</span>
@@ -168,8 +188,8 @@ export default function Dashboard() {
 
           {/* Bottom Settings Gear */}
           <button
-            onClick={() => router.push('/join')}
-            className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 rounded-xl transition-colors"
+            onClick={() => setShowSettingsModal(true)}
+            className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-200/50 rounded-xl transition-colors cursor-pointer"
             title="Settings"
           >
             <Settings className="w-5 h-5" />
@@ -178,7 +198,7 @@ export default function Dashboard() {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 flex flex-col items-center space-y-8">
+        <main className="flex-1 overflow-y-auto px-4 sm:px-8 py-8 flex flex-col items-center space-y-8 relative">
 
           {/* Live Digital Clock & Date */}
           <div className="text-center space-y-1 select-none">
@@ -194,11 +214,11 @@ export default function Dashboard() {
           <div className="flex items-center justify-center gap-8 sm:gap-12">
             
             {/* New Meeting */}
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 relative">
               <button
                 onClick={handleStartInstantMeeting}
                 disabled={creatingInstant}
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF742D] hover:bg-[#ff5c00] active:scale-95 text-white flex items-center justify-center shadow-md shadow-orange-500/20 transition-all group"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FF742D] hover:bg-[#ff5c00] active:scale-95 text-white flex items-center justify-center shadow-md shadow-orange-500/20 transition-all group cursor-pointer"
                 title="Start instant meeting"
               >
                 {creatingInstant ? (
@@ -207,13 +227,46 @@ export default function Dashboard() {
                   <Video className="w-7 h-7 fill-current stroke-none group-hover:scale-105 transition-transform" />
                 )}
               </button>
-              <button
-                onClick={handleStartInstantMeeting}
-                className="flex items-center gap-1 text-xs font-medium text-gray-700 hover:text-gray-900"
-              >
-                <span>New meeting</span>
-                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-              </button>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowNewMeetingMenu(!showNewMeetingMenu)}
+                  className="flex items-center gap-1 text-xs font-medium text-gray-700 hover:text-gray-900 cursor-pointer"
+                >
+                  <span>New meeting</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showNewMeetingMenu ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showNewMeetingMenu && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-30 animate-in fade-in zoom-in-95 duration-150">
+                    <button
+                      onClick={() => {
+                        setShowNewMeetingMenu(false);
+                        handleStartInstantMeeting();
+                      }}
+                      className="w-full text-left px-3 py-2 text-xs font-semibold text-gray-800 hover:bg-orange-50 hover:text-[#FF742D] rounded-xl flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <Zap className="w-4 h-4 text-[#FF742D]" />
+                      <span>Start Instant Meeting</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowNewMeetingMenu(false);
+                        handleStartInstantMeeting();
+                      }}
+                      className="w-full text-left px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100 rounded-xl flex items-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <Video className="w-4 h-4 text-gray-500" />
+                      <span>Start with Video On</span>
+                    </button>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <div className="px-3 py-1.5 text-[11px] text-gray-500 flex items-center justify-between">
+                      <span>PMI: 415-892-603</span>
+                      <span className="font-semibold text-green-600">Active</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Join */}
@@ -268,7 +321,7 @@ export default function Dashboard() {
           </div>
 
           {/* Scheduled Meetings Widget Card */}
-          <div className="w-full max-w-2xl bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden">
+          <div id="dashboard-meetings" className="w-full max-w-2xl bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden">
             
             {/* Card Top Title Bar */}
             <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
@@ -284,7 +337,7 @@ export default function Dashboard() {
               <button
                 onClick={loadDashboardData}
                 disabled={loading}
-                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors group flex items-center justify-center disabled:opacity-50"
+                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors group flex items-center justify-center disabled:opacity-50 cursor-pointer"
                 title="Refresh meetings"
               >
                 <RotateCw className={`w-3.5 h-3.5 transition-transform ${loading ? 'animate-spin text-[#0E71EB]' : ''}`} />
@@ -324,7 +377,7 @@ export default function Dashboard() {
                       <div className="flex items-center gap-2 shrink-0">
                         <button
                           onClick={(e) => handleCopyLink(m, e)}
-                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200"
+                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200 cursor-pointer"
                           title="Copy invite link"
                         >
                           {copiedCode === m.meeting_code ? (
@@ -336,7 +389,7 @@ export default function Dashboard() {
                         <button
                           onClick={() => handleDeleteMeeting(m.meeting_code)}
                           disabled={deletingCode === m.meeting_code}
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200 disabled:opacity-50"
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200 disabled:opacity-50 cursor-pointer"
                           title="Remove meeting"
                         >
                           {deletingCode === m.meeting_code ? (
@@ -352,7 +405,7 @@ export default function Dashboard() {
                             }
                             router.push(`/meeting/${m.meeting_code}`);
                           }}
-                          className="px-4 py-1.5 bg-[#0E71EB] hover:bg-[#0059be] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors"
+                          className="px-4 py-1.5 bg-[#0E71EB] hover:bg-[#0059be] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
                         >
                           Start
                         </button>
@@ -378,7 +431,7 @@ export default function Dashboard() {
             <div className="px-6 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center">
               <button
                 onClick={() => router.push('/schedule')}
-                className="text-xs font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1 transition-colors"
+                className="text-xs font-medium text-gray-600 hover:text-gray-900 flex items-center gap-1 transition-colors cursor-pointer"
               >
                 <span>Open schedule</span>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
@@ -389,9 +442,166 @@ export default function Dashboard() {
 
         </main>
 
+        {/* Team Chat Slide-over Drawer */}
+        {activeTab === 'chat' && (
+          <aside className="w-80 bg-white border-l border-gray-200 flex flex-col z-20 animate-in slide-in-from-right duration-200">
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2 font-bold text-gray-900 text-sm">
+                <MessageSquare className="w-4 h-4 text-[#0E71EB]" />
+                <span>Zoom Team Chat</span>
+              </div>
+              <button
+                onClick={() => setActiveTab('home')}
+                className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {chatMessages.map((msg) => (
+                <div key={msg.id} className="p-3 bg-gray-50 rounded-2xl border border-gray-100 text-xs space-y-1">
+                  <div className="flex items-center justify-between font-semibold text-gray-800">
+                    <span>{msg.sender}</span>
+                    <span className="text-[10px] text-gray-400 font-normal">{msg.time}</span>
+                  </div>
+                  <p className="text-gray-600 leading-relaxed">{msg.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <form onSubmit={handleSendMessage} className="p-3 border-t border-gray-100 flex items-center gap-2">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Type a team message..."
+                className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#0E71EB] focus:bg-white"
+              />
+              <button
+                type="submit"
+                className="p-2 bg-[#0E71EB] hover:bg-[#0059be] text-white rounded-xl transition-colors cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </form>
+          </aside>
+        )}
+
       </div>
+
+      {/* More Tools Modal */}
+      {showMoreToolsModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2 text-gray-900 font-extrabold text-lg">
+                <MoreHorizontal className="w-5 h-5 text-[#0E71EB]" />
+                <span>Zoom Workplace Tools</span>
+              </div>
+              <button
+                onClick={() => setShowMoreToolsModal(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  alert("🎨 Zoom Whiteboard Opened!");
+                  setShowMoreToolsModal(false);
+                }}
+                className="p-4 bg-purple-50 hover:bg-purple-100/70 border border-purple-100 rounded-2xl flex flex-col items-center text-center gap-2 transition-all cursor-pointer group"
+              >
+                <Sparkles className="w-6 h-6 text-purple-600 group-hover:scale-110 transition-transform" />
+                <span className="font-bold text-xs text-purple-900">Whiteboard</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowMoreToolsModal(false);
+                  setActiveTab('chat');
+                }}
+                className="p-4 bg-blue-50 hover:bg-blue-100/70 border border-blue-100 rounded-2xl flex flex-col items-center text-center gap-2 transition-all cursor-pointer group"
+              >
+                <MessageSquare className="w-6 h-6 text-[#0E71EB] group-hover:scale-110 transition-transform" />
+                <span className="font-bold text-xs text-blue-900">Team Channels</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  alert("☁️ Cloud Recordings & Transcripts");
+                  setShowMoreToolsModal(false);
+                }}
+                className="p-4 bg-emerald-50 hover:bg-emerald-100/70 border border-emerald-100 rounded-2xl flex flex-col items-center text-center gap-2 transition-all cursor-pointer group"
+              >
+                <Layers className="w-6 h-6 text-emerald-600 group-hover:scale-110 transition-transform" />
+                <span className="font-bold text-xs text-emerald-900">Recordings</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  alert("🧩 App Marketplace Connected");
+                  setShowMoreToolsModal(false);
+                }}
+                className="p-4 bg-amber-50 hover:bg-amber-100/70 border border-amber-100 rounded-2xl flex flex-col items-center text-center gap-2 transition-all cursor-pointer group"
+              >
+                <Shield className="w-6 h-6 text-amber-600 group-hover:scale-110 transition-transform" />
+                <span className="font-bold text-xs text-amber-900">Apps &amp; Docs</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-4">
+              <div className="flex items-center gap-2 text-gray-900 font-semibold text-lg">
+                <Settings className="w-5 h-5 text-[#0E71EB]" />
+                <span>Zoom Settings</span>
+              </div>
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-sm text-gray-600">
+              <div className="p-3.5 bg-blue-50 border border-blue-100 rounded-2xl text-blue-900 text-xs flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#0E71EB] shrink-0 mt-0.5" />
+                <span>Logged in as <code className="font-mono">Demo Host</code>. Backend connected to FastAPI &amp; SQLite database.</span>
+              </div>
+
+              <div className="space-y-3 pt-1">
+                <label className="flex items-center justify-between cursor-pointer py-1 text-xs font-medium text-gray-700">
+                  <span>Mute mic when joining meeting</span>
+                  <input type="checkbox" defaultChecked className="rounded text-[#0E71EB] focus:ring-[#0E71EB]" />
+                </label>
+                <label className="flex items-center justify-between cursor-pointer py-1 text-xs font-medium text-gray-700">
+                  <span>Turn off video when joining meeting</span>
+                  <input type="checkbox" className="rounded text-[#0E71EB] focus:ring-[#0E71EB]" />
+                </label>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end">
+              <button
+                onClick={() => setShowSettingsModal(false)}
+                className="px-5 py-2 bg-[#0E71EB] hover:bg-[#0059be] text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+              >
+                Save Preferences
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-

@@ -10,6 +10,7 @@ import {
 
 export default function Navbar() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const router = useRouter();
 
   return (
@@ -71,22 +72,81 @@ export default function Navbar() {
         {/* Right Actions & Profile */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => alert("Upgrade to Pro features.")}
-            className="bg-[#0E71EB] hover:bg-[#0059be] text-white text-xs font-semibold px-3.5 py-1 rounded-full transition-colors flex items-center justify-center shadow-xs"
+            onClick={() => setShowUpgradeModal(true)}
+            className="bg-[#0E71EB] hover:bg-[#0059be] active:scale-95 text-white text-xs font-semibold px-3.5 py-1 rounded-full transition-all flex items-center justify-center shadow-xs cursor-pointer"
           >
             Upgrade
           </button>
 
           <button
             onClick={() => setShowSettingsModal(true)}
-            title="User profile"
-            className="w-7 h-7 rounded-full bg-linear-to-tr from-purple-700 via-indigo-600 to-purple-500 border border-white/80 flex items-center justify-center font-bold text-[11px] text-white shadow-xs hover:opacity-90 transition-opacity"
+            title="User profile & settings"
+            className="w-7 h-7 rounded-full bg-linear-to-tr from-purple-700 via-indigo-600 to-purple-500 border border-white/80 flex items-center justify-center font-bold text-[11px] text-white shadow-xs hover:opacity-90 transition-opacity cursor-pointer"
           >
             DH
           </button>
         </div>
 
       </header>
+
+      {/* Upgrade Pro Modal */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <div className="flex items-center gap-2 text-gray-900 font-extrabold text-lg">
+                <span className="px-2 py-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-xs uppercase font-bold tracking-wider">Pro</span>
+                <span>Zoom Workplace Pro</span>
+              </div>
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs text-gray-600">
+              <p className="leading-relaxed text-gray-700">
+                Upgrade your Zoom Workplace account for unlimited group meeting duration, 5GB cloud recording storage, and AI Companion features.
+              </p>
+
+              <div className="space-y-2 bg-gray-50 border border-gray-200/80 rounded-2xl p-4">
+                <div className="flex items-center gap-2 font-medium text-gray-800">
+                  <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                  <span>Unlimited meeting length up to 30 hours</span>
+                </div>
+                <div className="flex items-center gap-2 font-medium text-gray-800">
+                  <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                  <span>5 GB Cloud Storage for Meeting Recordings</span>
+                </div>
+                <div className="flex items-center gap-2 font-medium text-gray-800">
+                  <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                  <span>Zoom AI Companion included</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowUpgradeModal(false)}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs rounded-xl transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  alert("🎉 Zoom Workplace Pro Plan Activated!");
+                  setShowUpgradeModal(false);
+                }}
+                className="px-5 py-2 bg-[#0E71EB] hover:bg-[#0059be] text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+              >
+                Activate Pro Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Settings Modal */}
       {showSettingsModal && (
