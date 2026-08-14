@@ -103,6 +103,19 @@ export default function Dashboard() {
     setShowCalendarMenu(false);
   };
 
+  const shiftCalendarMonth = (months: number) => {
+    setViewDate((previousDate) => {
+      const nextDate = new Date(previousDate);
+      nextDate.setDate(1);
+      nextDate.setMonth(nextDate.getMonth() + months);
+      return nextDate;
+    });
+  };
+
+  const selectCalendarDay = (date: Date) => {
+    setViewDate(date);
+  };
+
   const formattedTime = currentTime
     ? currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
     : '12:37 AM';
@@ -114,6 +127,24 @@ export default function Dashboard() {
   const shortDateHeader = currentTime
     ? viewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : 'Aug 14';
+
+  const calendarMonthLabel = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const calendarToday = new Date();
+  const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+  const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
+  const calendarCells: Array<Date | null> = [];
+
+  for (let i = 0; i < firstDayOfMonth.getDay(); i += 1) {
+    calendarCells.push(null);
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    calendarCells.push(new Date(viewDate.getFullYear(), viewDate.getMonth(), day));
+  }
+
+  while (calendarCells.length < 35) {
+    calendarCells.push(null);
+  }
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex flex-col font-sans text-gray-900">
@@ -276,6 +307,85 @@ export default function Dashboard() {
               </Link>{' '}
               to manage all your meetings and events in one place.
             </p>
+          </div>
+
+          {/* Visible Calendar Panel */}
+          <div className="w-full max-w-2xl bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.2em] text-gray-400 font-semibold">Calendar</p>
+                <h2 className="text-base font-semibold text-gray-900">{calendarMonthLabel}</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={goToToday}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  Today
+                </button>
+                <button
+                  onClick={() => shiftCalendarMonth(-1)}
+                  className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                  title="Previous month"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => shiftCalendarMonth(1)}
+                  className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                  title="Next month"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4">
+              <div className="grid grid-cols-7 gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayLabel) => (
+                  <div key={dayLabel} className="text-center py-1">{dayLabel}</div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7 gap-1.5">
+                {calendarCells.map((date, index) => {
+                  if (!date) {
+                    return <div key={`empty-${index}`} className="h-12 rounded-xl bg-gray-50/60" />;
+                  }
+
+                  const isToday = date.toDateString() === calendarToday.toDateString();
+                  const isSelected = date.toDateString() === viewDate.toDateString();
+
+                  return (
+                    <button
+                      key={date.toISOString()}
+                      onClick={() => selectCalendarDay(date)}
+                      className={`h-12 rounded-xl border text-sm font-medium transition-all ${
+                        isSelected
+                          ? 'bg-[#0E71EB] text-white border-[#0E71EB] shadow-sm'
+                          : isToday
+                            ? 'bg-blue-50 text-[#0E71EB] border-blue-200 hover:bg-blue-100'
+                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                      }`}
+                    >
+                      {date.getDate()}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <p className="text-xs text-gray-500">
+                  Selected: {viewDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                </p>
+                <button
+                  onClick={() => router.push('/schedule')}
+                  className="text-xs font-semibold text-[#0E71EB] hover:text-[#0059be]"
+                >
+                  Open full schedule
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Calendar & Scheduled Meetings Widget Card */}
