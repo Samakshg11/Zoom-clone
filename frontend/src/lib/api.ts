@@ -7,7 +7,11 @@ const getApiBaseUrl = (): string => {
   } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = `https://${url.replace(/^\/+/, '')}`;
   }
-  return url.replace(/\/+$/, '');
+  url = url.replace(/\/+$/, '');
+  if (!url.endsWith('/api')) {
+    url += '/api';
+  }
+  return url;
 };
 
 const API_BASE_URL = getApiBaseUrl();
