@@ -1,4 +1,16 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const getApiBaseUrl = (): string => {
+  let url = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api').trim();
+  if (url.startsWith('ttps://')) {
+    url = 'h' + url;
+  } else if (url.startsWith('ttp://')) {
+    url = 'h' + url;
+  } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = `https://${url.replace(/^\/+/, '')}`;
+  }
+  return url.replace(/\/+$/, '');
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export interface Participant {
   id: number;

@@ -21,7 +21,7 @@ export default function Dashboard() {
   const [creatingInstant, setCreatingInstant] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState<Date | null>(() => new Date());
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<'home' | 'meetings' | 'chat'>('home');
 
   const loadDashboardData = async () => {
@@ -41,6 +41,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    const timeout = setTimeout(() => setCurrentTime(new Date()), 0);
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     Promise.all([fetchUpcomingMeetings(), fetchRecentMeetings()])
       .then(([upcoming, recent]) => {
@@ -53,7 +54,10 @@ export default function Dashboard() {
       .finally(() => {
         setLoading(false);
       });
-    return () => clearInterval(timer);
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(timer);
+    };
   }, []);
 
   const handleDeleteMeeting = async (meetingCode: string) => {
@@ -178,10 +182,10 @@ export default function Dashboard() {
 
           {/* Live Digital Clock & Date */}
           <div className="text-center space-y-1 select-none">
-            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#1a1a1a]">
+            <h1 suppressHydrationWarning className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#1a1a1a]">
               {formattedTime}
             </h1>
-            <p className="text-xs sm:text-sm font-normal text-[#5c5f60]">
+            <p suppressHydrationWarning className="text-xs sm:text-sm font-normal text-[#5c5f60]">
               {formattedDate}
             </p>
           </div>
