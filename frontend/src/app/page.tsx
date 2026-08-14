@@ -22,7 +22,7 @@ export default function Dashboard() {
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [viewDate, setViewDate] = useState<Date>(() => new Date());
-  const [showCalendarMenu, setShowCalendarMenu] = useState(false);
+  const [showCalendarPanel, setShowCalendarPanel] = useState(false);
   const [activeTab, setActiveTab] = useState<'home' | 'meetings' | 'chat'>('home');
 
   const handleDeleteMeeting = async (meetingCode: string) => {
@@ -95,12 +95,11 @@ export default function Dashboard() {
       nextDate.setDate(nextDate.getDate() + days);
       return nextDate;
     });
-    setShowCalendarMenu(false);
   };
 
   const goToToday = () => {
     setViewDate(new Date());
-    setShowCalendarMenu(false);
+    setShowCalendarPanel(true);
   };
 
   const shiftCalendarMonth = (months: number) => {
@@ -440,35 +439,13 @@ export default function Dashboard() {
                 </div>
               </div>
               <button
-                onClick={() => setShowCalendarMenu((previous) => !previous)}
+                onClick={() => setShowCalendarPanel((previous) => !previous)}
                 className="p-1 text-gray-400 hover:text-gray-600"
-                title="More options"
+                title="Show calendar"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </button>
 
-              {showCalendarMenu && (
-                <div className="absolute right-4 top-12 z-10 w-44 rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
-                  <button
-                    onClick={loadDashboardData}
-                    className="w-full px-4 py-2.5 text-left text-xs font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Refresh meetings
-                  </button>
-                  <button
-                    onClick={() => router.push('/schedule')}
-                    className="w-full px-4 py-2.5 text-left text-xs font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Open schedule
-                  </button>
-                  <button
-                    onClick={() => router.push('/join')}
-                    className="w-full px-4 py-2.5 text-left text-xs font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Join meeting
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Meetings List / Empty State */}
@@ -479,84 +456,85 @@ export default function Dashboard() {
                   <span>Loading scheduled meetings...</span>
                 </div>
               ) : upcomingMeetings.length > 0 ? (
-                <div className="space-y-3">
-                  {upcomingMeetings.map((m) => (
-                    <div
-                      key={m.id}
-                      className="p-4 bg-gray-50/70 border border-gray-200/80 rounded-xl flex items-center justify-between gap-4 hover:bg-blue-50/30 hover:border-blue-200 transition-all"
-                    >
-                      <div className="min-w-0">
-                        <h4 className="font-semibold text-sm text-gray-900 truncate">{m.title}</h4>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1 font-normal">
-                          <span className="font-mono text-gray-400 flex items-center gap-0.5">
-                            <Hash className="w-3 h-3" />
-                            {m.meeting_code}
-                          </span>
-                          <span>•</span>
-                          <span>
-                            {m.scheduled_time
-                              ? new Date(m.scheduled_time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
-                              : 'Flexible Time'}
-                          </span>
-                        </div>
+                {showCalendarPanel && (
+                  <div className="w-full max-w-2xl bg-white border border-gray-200/90 rounded-2xl shadow-xs overflow-hidden">
+                    <div className="p-4 border-b border-gray-100 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-gray-400 font-semibold">Calendar</p>
+                        <h2 className="text-base font-semibold text-gray-900">{calendarMonthLabel}</h2>
                       </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-2">
                         <button
-                          onClick={(e) => handleCopyLink(m, e)}
-                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200"
-                          title="Copy invite link"
+                          onClick={goToToday}
+                          className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors"
                         >
-                          {copiedCode === m.meeting_code ? (
-                            <Check className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
+                          Today
                         </button>
                         <button
-                          onClick={() => handleDeleteMeeting(m.meeting_code)}
-                          disabled={deletingCode === m.meeting_code}
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200 disabled:opacity-50"
-                          title="Remove meeting"
+                          onClick={() => shiftCalendarMonth(-1)}
+                          className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                          title="Previous month"
                         >
-                          {deletingCode === m.meeting_code ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-4 h-4" />
-                          )}
+                          <ChevronLeft className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => {
-                            if (typeof window !== 'undefined') {
-                              localStorage.setItem(`zoom_display_name_${m.meeting_code}`, 'Demo Host');
-                            }
-                            router.push(`/meeting/${m.meeting_code}`);
-                          }}
-                          className="px-4 py-1.5 bg-[#0E71EB] hover:bg-[#0059be] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors"
+                          onClick={() => shiftCalendarMonth(1)}
+                          className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                          title="Next month"
                         >
-                          Start
+                          <ChevronRight className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                /* Empty state matching the umbrella beach chair artwork in Zoom */
-                <div className="flex flex-col items-center justify-center py-8 text-center space-y-3">
-                  <div className="w-20 h-20 relative flex items-center justify-center">
-                    {/* SVG Illustration of Beach Umbrella */}
-                    <svg className="w-16 h-16 text-indigo-300" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M32 8L48 24H16L32 8Z" fill="#818CF8" fillOpacity="0.4" />
-                      <path d="M32 8C24 16 16 24 16 24H48C48 24 40 16 32 8Z" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M32 24V48" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" />
-                      <path d="M20 48H44" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                  <p className="text-xs text-gray-500 font-medium">No meetings scheduled.</p>
-                </div>
-              )}
-            </div>
 
+                    <div className="p-4">
+                      <div className="grid grid-cols-7 gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayLabel) => (
+                          <div key={dayLabel} className="text-center py-1">{dayLabel}</div>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-7 gap-1.5">
+                        {calendarCells.map((date, index) => {
+                          if (!date) {
+                            return <div key={`empty-${index}`} className="h-12 rounded-xl bg-gray-50/60" />;
+                          }
+
+                          const isToday = date.toDateString() === calendarToday.toDateString();
+                          const isSelected = date.toDateString() === viewDate.toDateString();
+
+                          return (
+                            <button
+                              key={date.toISOString()}
+                              onClick={() => selectCalendarDay(date)}
+                              className={`h-12 rounded-xl border text-sm font-medium transition-all ${
+                                isSelected
+                                  ? 'bg-[#0E71EB] text-white border-[#0E71EB] shadow-sm'
+                                  : isToday
+                                    ? 'bg-blue-50 text-[#0E71EB] border-blue-200 hover:bg-blue-100'
+                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                              }`}
+                            >
+                              {date.getDate()}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between gap-3">
+                        <p className="text-xs text-gray-500">
+                          Selected: {viewDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                        </p>
+                        <button
+                          onClick={() => router.push('/schedule')}
+                          className="text-xs font-semibold text-[#0E71EB] hover:text-[#0059be]"
+                        >
+                          Open full schedule
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
             {/* Card Footer Link */}
             <div className="px-6 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center">
               <button
