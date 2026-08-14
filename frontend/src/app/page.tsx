@@ -21,6 +21,8 @@ export default function Dashboard() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
+  const [viewDate, setViewDate] = useState<Date>(() => new Date());
+  const [showCalendarMenu, setShowCalendarMenu] = useState(false);
   const [activeTab, setActiveTab] = useState<'home' | 'meetings' | 'chat'>('home');
 
   const handleDeleteMeeting = async (meetingCode: string) => {
@@ -87,6 +89,20 @@ export default function Dashboard() {
     setTimeout(() => setCopiedCode(null), 2500);
   };
 
+  const shiftViewDate = (days: number) => {
+    setViewDate((previousDate) => {
+      const nextDate = new Date(previousDate);
+      nextDate.setDate(nextDate.getDate() + days);
+      return nextDate;
+    });
+    setShowCalendarMenu(false);
+  };
+
+  const goToToday = () => {
+    setViewDate(new Date());
+    setShowCalendarMenu(false);
+  };
+
   const formattedTime = currentTime
     ? currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
     : '12:37 AM';
@@ -96,7 +112,7 @@ export default function Dashboard() {
     : 'Friday, August 14';
 
   const shortDateHeader = currentTime
-    ? currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    ? viewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : 'Aug 14';
 
   return (
@@ -106,7 +122,7 @@ export default function Dashboard() {
       <div className="flex-1 flex overflow-hidden">
         
         {/* Left Vertical Navigation Sidebar */}
-        <aside className="w-[72px] bg-[#F7F8FA] border-r border-gray-200/80 flex flex-col items-center justify-between py-4 select-none shrink-0">
+        <aside className="w-18 bg-[#F7F8FA] border-r border-gray-200/80 flex flex-col items-center justify-between py-4 select-none shrink-0">
           
           {/* Main Navigation Items */}
           <div className="flex flex-col items-center gap-2 w-full px-2">
@@ -281,22 +297,66 @@ export default function Dashboard() {
             </div>
 
             {/* Card Toolbar Controls */}
-            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between text-xs text-gray-600">
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between text-xs text-gray-600 relative">
               <div className="flex items-center gap-2">
-                <button className="flex items-center gap-1.5 px-3 py-1 bg-gray-50 border border-gray-200 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                <button
+                  onClick={goToToday}
+                  className="flex items-center gap-1.5 px-3 py-1 bg-gray-50 border border-gray-200 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                >
                   <CalendarIcon className="w-3.5 h-3.5 text-gray-500" />
                   <span>Today</span>
                 </button>
                 <div className="flex items-center gap-1 text-gray-400">
-                  <button className="p-1 hover:bg-gray-100 rounded"><ChevronLeft className="w-4 h-4" /></button>
-                  <button className="p-1 hover:bg-gray-100 rounded"><ChevronRight className="w-4 h-4" /></button>
+                  <button
+                    onClick={() => shiftViewDate(-1)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                    title="Previous day"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => shiftViewDate(1)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                    title="Next day"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
-              <button className="p-1 text-gray-400 hover:text-gray-600"><MoreHorizontal className="w-4 h-4" /></button>
+              <button
+                onClick={() => setShowCalendarMenu((previous) => !previous)}
+                className="p-1 text-gray-400 hover:text-gray-600"
+                title="More options"
+              >
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+
+              {showCalendarMenu && (
+                <div className="absolute right-4 top-12 z-10 w-44 rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+                  <button
+                    onClick={loadDashboardData}
+                    className="w-full px-4 py-2.5 text-left text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Refresh meetings
+                  </button>
+                  <button
+                    onClick={() => router.push('/schedule')}
+                    className="w-full px-4 py-2.5 text-left text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Open schedule
+                  </button>
+                  <button
+                    onClick={() => router.push('/join')}
+                    className="w-full px-4 py-2.5 text-left text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Join meeting
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Meetings List / Empty State */}
-            <div className="p-6">
+            <div id="dashboard-meetings" className="p-6">
               {loading ? (
                 <div className="text-center py-8 text-xs text-gray-400 flex flex-col items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin text-[#0E71EB]" />

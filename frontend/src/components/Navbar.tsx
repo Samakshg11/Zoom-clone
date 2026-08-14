@@ -39,6 +39,15 @@ export default function Navbar() {
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
             <button
+              onClick={() => {
+                const dashboardMeetings = document.getElementById('dashboard-meetings');
+                if (dashboardMeetings) {
+                  dashboardMeetings.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  return;
+                }
+
+                router.push('/#dashboard-meetings');
+              }}
               className="p-1 hover:text-gray-700 hover:bg-gray-200/60 rounded transition-colors"
               title="History"
             >
@@ -48,7 +57,7 @@ export default function Navbar() {
         </div>
 
         {/* Center: Search Bar */}
-        <div className="flex-1 max-w-[420px] mx-4 hidden md:block">
+        <div className="flex-1 max-w-105 mx-4 hidden md:block">
           <div className="relative flex items-center justify-center">
             <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 pointer-events-none" />
             <input
@@ -71,7 +80,7 @@ export default function Navbar() {
           <button
             onClick={() => setShowSettingsModal(true)}
             title="User profile"
-            className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-700 via-indigo-600 to-purple-500 border border-white/80 flex items-center justify-center font-bold text-[11px] text-white shadow-xs hover:opacity-90 transition-opacity"
+            className="w-7 h-7 rounded-full bg-linear-to-tr from-purple-700 via-indigo-600 to-purple-500 border border-white/80 flex items-center justify-center font-bold text-[11px] text-white shadow-xs hover:opacity-90 transition-opacity"
           >
             DH
           </button>
