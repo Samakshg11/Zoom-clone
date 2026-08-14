@@ -178,6 +178,8 @@ This verifies all 9 API endpoint cases including meeting creation, join, end lif
 2. Set start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 3. Set `ALLOWED_ORIGINS` to your Vercel frontend URL.
 
+
+Live Url - https://zoom-clone-oun1.vercel.app/
 ---
 
 ## 👤 Default User (No Authentication)
