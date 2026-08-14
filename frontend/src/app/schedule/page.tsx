@@ -67,9 +67,10 @@ export default function SchedulePage() {
       });
 
       setScheduledMeeting(meeting);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || 'Failed to schedule meeting.');
+      const msg = err instanceof Error ? err.message : 'Failed to schedule meeting.';
+      setError(msg);
     } finally {
       setLoading(false);
     }

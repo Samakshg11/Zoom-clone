@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -14,17 +14,10 @@ function JoinContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [meetingInput, setMeetingInput] = useState('');
+  const [meetingInput, setMeetingInput] = useState(() => searchParams.get('code') || searchParams.get('meeting') || '');
   const [displayName, setDisplayName] = useState('Demo Guest');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    const codeParam = searchParams.get('code') || searchParams.get('meeting');
-    if (codeParam) {
-      setMeetingInput(codeParam);
-    }
-  }, [searchParams]);
 
   const extractCode = (input: string): string => {
     let clean = input.trim();
@@ -75,9 +68,10 @@ function JoinContent() {
 
       // Step 3: Redirect to meeting room
       router.push(`/meeting/${meeting.meeting_code}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setErrorMessage(err.message || 'Unable to join meeting. Please try again.');
+      const msg = err instanceof Error ? err.message : 'Unable to join meeting. Please try again.';
+      setErrorMessage(msg);
       setLoading(false);
     }
   };

@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Mic, MicOff, Video, VideoOff, Users, MessageSquare,
-  ChevronUp, ArrowUpFromLine, Smile, Shield, Sparkles, MoreHorizontal, X,
-  Hand
+  ChevronUp, ArrowUpFromLine, Smile, Shield, Sparkles, MoreHorizontal, X
 } from 'lucide-react';
 
 interface ControlBarProps {

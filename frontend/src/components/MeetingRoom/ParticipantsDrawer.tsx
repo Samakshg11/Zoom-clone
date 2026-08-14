@@ -56,12 +56,13 @@ export default function ParticipantsDrawer({
       {/* Search Input */}
       <div className="p-4 border-b border-[#444749]">
         <div className="relative flex items-center">
+          <Search className="w-3.5 h-3.5 text-[#767575] absolute left-3 pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Find a participant"
-            className="w-full bg-[#1a1a1a] border border-[#444749] rounded px-3 py-2 text-xs text-white placeholder-[#767575] focus:outline-none focus:border-[#0e71eb] focus:ring-1 focus:ring-[#0e71eb] transition-all"
+            className="w-full bg-[#1a1a1a] border border-[#444749] rounded pl-8 pr-3 py-2 text-xs text-white placeholder-[#767575] focus:outline-none focus:border-[#0e71eb] focus:ring-1 focus:ring-[#0e71eb] transition-all"
           />
         </div>
       </div>

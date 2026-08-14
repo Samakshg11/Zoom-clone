@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Search, ChevronLeft, ChevronRight, History, Settings,
-  CheckCircle2, X, Sparkles
+  CheckCircle2, X
 } from 'lucide-react';
 
 export default function Navbar() {

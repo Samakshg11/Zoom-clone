@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   Video, Plus, Copy, Check,
   Settings, Home, MessageSquare,
-  Info, Play,
+  Info,
   Loader2, Hash, Trash2,
   MoreHorizontal, ChevronDown, ChevronRight
 } from 'lucide-react';
@@ -16,25 +16,13 @@ import { fetchUpcomingMeetings, fetchRecentMeetings, createInstantMeeting, cance
 export default function Dashboard() {
   const router = useRouter();
   const [upcomingMeetings, setUpcomingMeetings] = useState<Meeting[]>([]);
-  const [recentMeetings, setRecentMeetings] = useState<Meeting[]>([]);
+  const [, setRecentMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
   const [creatingInstant, setCreatingInstant] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+  const [currentTime, setCurrentTime] = useState<Date | null>(() => new Date());
   const [activeTab, setActiveTab] = useState<'home' | 'meetings' | 'chat'>('home');
-
-  const handleDeleteMeeting = async (meetingCode: string) => {
-    if (!confirm('Remove this scheduled meeting?')) return;
-    setDeletingCode(meetingCode);
-    const ok = await cancelMeeting(meetingCode);
-    if (ok) {
-      setUpcomingMeetings((prev) => prev.filter((m) => m.meeting_code !== meetingCode));
-    } else {
-      alert('Failed to remove meeting. Please try again.');
-    }
-    setDeletingCode(null);
-  };
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -50,6 +38,34 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    Promise.all([fetchUpcomingMeetings(), fetchRecentMeetings()])
+      .then(([upcoming, recent]) => {
+        setUpcomingMeetings(upcoming);
+        setRecentMeetings(recent);
+      })
+      .catch((err) => {
+        console.error("Failed to load dashboard meetings:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleDeleteMeeting = async (meetingCode: string) => {
+    if (!confirm('Remove this scheduled meeting?')) return;
+    setDeletingCode(meetingCode);
+    const ok = await cancelMeeting(meetingCode);
+    if (ok) {
+      setUpcomingMeetings((prev) => prev.filter((m) => m.meeting_code !== meetingCode));
+    } else {
+      alert('Failed to remove meeting. Please try again.');
+    }
+    setDeletingCode(null);
   };
 
   const handleStartInstantMeeting = async () => {
@@ -83,10 +99,6 @@ export default function Dashboard() {
   const formattedDate = currentTime
     ? currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
     : 'Friday, August 14';
-
-  const shortDateHeader = currentTime
-    ? currentTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    : 'Aug 14';
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex flex-col font-sans text-gray-900">
@@ -243,7 +255,7 @@ export default function Dashboard() {
           <div className="w-full max-w-2xl bg-[#F0F6FF] border border-[#BFDBFE] rounded-2xl p-4 flex items-start gap-3 shadow-xs">
             <Info className="w-5 h-5 text-[#0E71EB] shrink-0 mt-0.5" />
             <p className="text-xs text-gray-700 leading-relaxed">
-              You haven't connected your calendar yet.{' '}
+              You haven&apos;t connected your calendar yet.{' '}
               <Link href="/schedule" className="text-[#0E71EB] font-semibold underline hover:text-[#0059be]">
                 Connect now
               </Link>{' '}

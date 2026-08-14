@@ -93,7 +93,7 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
         ];
 
         if (data.participants && data.participants.length > 0) {
-          data.participants.forEach((p, idx) => {
+          data.participants.forEach((p) => {
             if (p.display_name !== displayName) {
               participantsList.push({
                 id: p.id,
@@ -108,7 +108,7 @@ export default function MeetingRoomPage({ params }: { params: Promise<{ code: st
         }
 
         setGridParticipants(participantsList);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
         setError('Failed to load meeting details.');
       } finally {
