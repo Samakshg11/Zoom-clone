@@ -9,6 +9,12 @@ class UserResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class HealthStatusResponse(BaseModel):
+    status: str
+    database: str
+    timestamp: datetime
+    version: str = "1.0.0"
+
 class ParticipantResponse(BaseModel):
     id: int
     meeting_id: int

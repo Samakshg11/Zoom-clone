@@ -57,9 +57,25 @@ def find_meeting_by_code(db: Session, raw_code: str) -> Optional[models.Meeting]
             return m
     return None
 
+from sqlalchemy import text
+
 @app.get("/")
 def read_root():
     return {"message": "Zoom Clone API Server is running."}
+
+@app.get("/api/health", response_model=schemas.HealthStatusResponse)
+def health_check(db: Session = Depends(get_db)):
+    db_status = "connected"
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception as e:
+        db_status = f"disconnected: {str(e)}"
+    return {
+        "status": "healthy" if db_status == "connected" else "degraded",
+        "database": db_status,
+        "timestamp": datetime.now(timezone.utc),
+        "version": "1.0.0"
+    }
 
 @app.post("/api/meetings/instant", response_model=schemas.MeetingResponse, status_code=status.HTTP_201_CREATED)
 def create_instant_meeting(
