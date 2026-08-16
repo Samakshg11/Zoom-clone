@@ -23,6 +23,7 @@ export default function Dashboard() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
   const [activeTab, setActiveTab] = useState<'home' | 'meetings' | 'chat'>('home');
   const [meetingSearch, setMeetingSearch] = useState('');
   const [meetingFilter, setMeetingFilter] = useState<'all' | 'upcoming' | 'recent'>('upcoming');
@@ -100,11 +101,17 @@ export default function Dashboard() {
     }
   };
 
+  const showToast = (message: string) => {
+    setToast({ message, visible: true });
+    setTimeout(() => setToast({ message: '', visible: false }), 2500);
+  };
+
   const handleCopyLink = (meeting: Meeting, e: React.MouseEvent) => {
     e.stopPropagation();
     const fullUrl = `${window.location.origin}${meeting.invite_link}`;
     navigator.clipboard.writeText(fullUrl);
     setCopiedCode(meeting.meeting_code);
+    showToast('✓ Meeting link copied to clipboard!');
     setTimeout(() => setCopiedCode(null), 2500);
   };
 
@@ -128,6 +135,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex flex-col font-sans text-gray-900">
+      {/* Toast Notification */}
+      <div
+        role="alert"
+        aria-live="polite"
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 bg-gray-900 text-white text-xs font-semibold rounded-2xl shadow-2xl flex items-center gap-2 transition-all duration-300 ${
+          toast.visible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
+      >
+        <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+        {toast.message}
+      </div>
       <Navbar />
 
       <div className="flex-1 flex overflow-hidden">
