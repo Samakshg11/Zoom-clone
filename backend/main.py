@@ -131,29 +131,52 @@ def create_scheduled_meeting(
     db.refresh(meeting)
     return meeting
 
+from sqlalchemy import or_
+
 @app.get("/api/meetings/upcoming", response_model=List[schemas.MeetingResponse])
-def get_upcoming_meetings(db: Session = Depends(get_db)):
+def get_upcoming_meetings(
+    limit: int = 50,
+    offset: int = 0,
+    search: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
     now = datetime.now(timezone.utc)
-    meetings = (
+    query = (
         db.query(models.Meeting)
         .filter(
             models.Meeting.type == "scheduled",
             models.Meeting.status == "upcoming",
             models.Meeting.scheduled_time >= now
         )
-        .order_by(models.Meeting.scheduled_time.asc())
-        .all()
     )
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        query = query.filter(
+            or_(
+                models.Meeting.title.ilike(term),
+                models.Meeting.meeting_code.ilike(term)
+            )
+        )
+    meetings = query.order_by(models.Meeting.scheduled_time.asc()).offset(offset).limit(limit).all()
     return meetings
 
 @app.get("/api/meetings/recent", response_model=List[schemas.MeetingResponse])
-def get_recent_meetings(db: Session = Depends(get_db)):
-    meetings = (
-        db.query(models.Meeting)
-        .filter(models.Meeting.status == "ended")
-        .order_by(models.Meeting.created_at.desc())
-        .all()
-    )
+def get_recent_meetings(
+    limit: int = 50,
+    offset: int = 0,
+    search: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Meeting).filter(models.Meeting.status == "ended")
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        query = query.filter(
+            or_(
+                models.Meeting.title.ilike(term),
+                models.Meeting.meeting_code.ilike(term)
+            )
+        )
+    meetings = query.order_by(models.Meeting.created_at.desc()).offset(offset).limit(limit).all()
     return meetings
 
 @app.get("/api/meetings/{meeting_code}", response_model=schemas.MeetingResponse)
