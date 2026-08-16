@@ -10,6 +10,7 @@ from database import engine, Base, get_db
 import models
 import schemas
 from seed import seed_db, generate_meeting_code
+from utils import normalize_meeting_code, sanitize_string, validate_meeting_code_format
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -42,18 +43,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def normalize_code(code: str) -> str:
-    return code.strip().replace(" ", "").replace("-", "")
-
 def find_meeting_by_code(db: Session, raw_code: str) -> Optional[models.Meeting]:
+    """Look up a meeting by exact or normalized meeting code."""
     meeting = db.query(models.Meeting).filter(models.Meeting.meeting_code == raw_code).first()
     if meeting:
         return meeting
-    
-    normalized_input = normalize_code(raw_code)
+
+    normalized_input = normalize_meeting_code(raw_code)
     all_meetings = db.query(models.Meeting).all()
     for m in all_meetings:
-        if normalize_code(m.meeting_code) == normalized_input:
+        if normalize_meeting_code(m.meeting_code) == normalized_input:
             return m
     return None
 

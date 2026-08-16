@@ -2,12 +2,15 @@ import random
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from models import User, Meeting, Participant
+from utils import format_meeting_code
 
 def generate_meeting_code() -> str:
+    """Generate a random XXX-XXX-XXX format meeting code."""
     part1 = f"{random.randint(100, 999)}"
     part2 = f"{random.randint(100, 999)}"
     part3 = f"{random.randint(100, 999)}"
-    return f"{part1}-{part2}-{part3}"
+    raw = f"{part1}{part2}{part3}"
+    return format_meeting_code(raw)
 
 def seed_db(db: Session):
     # Ensure default user exists
