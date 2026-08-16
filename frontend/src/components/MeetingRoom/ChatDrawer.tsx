@@ -48,23 +48,29 @@ export default function ChatDrawer({ isOpen, onClose, currentUser }: ChatDrawerP
   };
 
   return (
-    <aside className="w-[320px] bg-[#242424] border-l border-[#444749] text-white flex flex-col z-20 shrink-0 h-full animate-in slide-in-from-right duration-200">
+    <aside
+      className="w-[320px] bg-[#242424] border-l border-[#444749] text-white flex flex-col z-20 shrink-0 h-full animate-in slide-in-from-right duration-200"
+      role="dialog"
+      aria-label="In-meeting chat"
+      aria-modal="false"
+    >
       {/* Header */}
       <div className="p-4 border-b border-[#444749] flex items-center justify-between">
         <div className="flex items-center gap-2 font-semibold text-sm">
-          <MessageSquare className="w-4 h-4 text-[#0e71eb]" />
+          <MessageSquare className="w-4 h-4 text-[#0e71eb]" aria-hidden="true" />
           <span>In-Meeting Chat</span>
         </div>
         <button
           onClick={onClose}
+          aria-label="Close chat panel"
           className="text-[#c5c6c8] hover:text-white p-1 rounded-md hover:bg-[#323232]"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite" aria-label="Chat messages" aria-relevant="additions">
         {messages.map((msg) => (
           <div key={msg.id} className="space-y-1">
             {msg.isSystem ? (

@@ -39,7 +39,12 @@ export default function ParticipantsDrawer({
   );
 
   return (
-    <aside className="w-[320px] bg-[#242424] border-l border-[#444749] flex flex-col shrink-0 h-full z-20 animate-in slide-in-from-right duration-200 text-white">
+    <aside
+      className="w-[320px] bg-[#242424] border-l border-[#444749] flex flex-col shrink-0 h-full z-20 animate-in slide-in-from-right duration-200 text-white"
+      role="dialog"
+      aria-label={`Participants panel, ${listToRender.length} in meeting`}
+      aria-modal="false"
+    >
       {/* Drawer Header */}
       <div className="p-4 border-b border-[#444749] flex justify-between items-center">
         <h2 className="font-semibold text-sm text-white">
@@ -47,9 +52,10 @@ export default function ParticipantsDrawer({
         </h2>
         <button
           onClick={onClose}
+          aria-label="Close participants panel"
           className="text-[#c5c6c8] hover:text-white transition-colors p-1 rounded-md hover:bg-[#323232]"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
 
@@ -62,6 +68,7 @@ export default function ParticipantsDrawer({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Find a participant"
+            aria-label="Search participants"
             className="w-full bg-[#1a1a1a] border border-[#444749] rounded pl-8 pr-3 py-2 text-xs text-white placeholder-[#767575] focus:outline-none focus:border-[#0e71eb] focus:ring-1 focus:ring-[#0e71eb] transition-all"
           />
         </div>

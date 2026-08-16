@@ -61,7 +61,11 @@ export default function ControlBar({
 
   return (
     <>
-      <nav className="fixed bottom-0 left-[72px] right-0 z-40 flex items-center justify-between px-4 py-1.5 bg-[#0a0a0a] shadow-lg h-[64px] border-t border-gray-800 text-white select-none">
+      <nav
+        className="fixed bottom-0 left-[72px] right-0 z-40 flex items-center justify-between px-4 py-1.5 bg-[#0a0a0a] shadow-lg h-[64px] border-t border-gray-800 text-white select-none"
+        role="toolbar"
+        aria-label="Meeting controls"
+      >
         
         {/* Left Group: Audio & Video with dark pill background */}
         <div className="flex items-center gap-2">
@@ -69,16 +73,17 @@ export default function ControlBar({
           <div className="flex items-center bg-[#1c1d1f] hover:bg-[#2a2b2e] rounded-lg p-1 transition-colors">
             <button
               onClick={onToggleMute}
+              aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
+              aria-pressed={isMuted}
               className={`flex flex-col items-center justify-center px-2 py-1 ${
                 isMuted ? 'text-red-500' : 'text-white'
               }`}
-              title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
             >
-              {isMuted ? <MicOff className="w-5 h-5 text-red-500" /> : <Mic className="w-5 h-5 text-white" />}
-              <span className="text-[10px] font-normal mt-0.5">{isMuted ? 'Unmute' : 'Mute'}</span>
+              {isMuted ? <MicOff className="w-5 h-5 text-red-500" aria-hidden="true" /> : <Mic className="w-5 h-5 text-white" aria-hidden="true" />}
+              <span className="text-[10px] font-normal mt-0.5" aria-hidden="true">{isMuted ? 'Unmute' : 'Mute'}</span>
             </button>
-            <button className="text-gray-400 hover:text-white px-1">
-              <ChevronUp className="w-3.5 h-3.5" />
+            <button className="text-gray-400 hover:text-white px-1" aria-label="Audio options" title="Audio settings">
+              <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
 
@@ -86,16 +91,17 @@ export default function ControlBar({
           <div className="flex items-center bg-[#1c1d1f] hover:bg-[#2a2b2e] rounded-lg p-1 transition-colors">
             <button
               onClick={onToggleVideo}
+              aria-label={isVideoOff ? 'Start video' : 'Stop video'}
+              aria-pressed={isVideoOff}
               className={`flex flex-col items-center justify-center px-2 py-1 ${
                 isVideoOff ? 'text-red-500' : 'text-white'
               }`}
-              title={isVideoOff ? 'Start Video' : 'Stop Video'}
             >
-              {isVideoOff ? <VideoOff className="w-5 h-5 text-red-500" /> : <Video className="w-5 h-5 text-white" />}
-              <span className="text-[10px] font-normal mt-0.5">{isVideoOff ? 'Stop Video' : 'Start Video'}</span>
+              {isVideoOff ? <VideoOff className="w-5 h-5 text-red-500" aria-hidden="true" /> : <Video className="w-5 h-5 text-white" aria-hidden="true" />}
+              <span className="text-[10px] font-normal mt-0.5" aria-hidden="true">{isVideoOff ? 'Stop Video' : 'Start Video'}</span>
             </button>
-            <button className="text-gray-400 hover:text-white px-1">
-              <ChevronUp className="w-3.5 h-3.5" />
+            <button className="text-gray-400 hover:text-white px-1" aria-label="Video options" title="Video settings">
+              <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -105,39 +111,48 @@ export default function ControlBar({
           {/* Participants */}
           <button
             onClick={onToggleParticipantsDrawer}
+            aria-label={`${showParticipantsDrawer ? 'Close' : 'Open'} participants panel (${participantCount} participants)`}
+            aria-pressed={showParticipantsDrawer}
+            aria-expanded={showParticipantsDrawer}
             className={`flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] transition-all min-w-[56px] ${
               showParticipantsDrawer ? 'text-[#0E71EB]' : 'text-gray-200'
             }`}
           >
-            <div className="relative">
+            <div className="relative" aria-hidden="true">
               <Users className="w-5 h-5" />
               <span className="absolute -top-1 -right-2 bg-gray-700 text-white text-[9px] font-bold px-1 rounded-full">
                 {participantCount}
               </span>
             </div>
-            <span className="text-[10px] font-normal mt-0.5">Participants</span>
+            <span className="text-[10px] font-normal mt-0.5" aria-hidden="true">Participants</span>
           </button>
 
           {/* Chat */}
           <button
             onClick={onToggleChatDrawer}
+            aria-label={`${showChatDrawer ? 'Close' : 'Open'} in-meeting chat`}
+            aria-pressed={showChatDrawer}
+            aria-expanded={showChatDrawer}
             className={`flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] transition-all min-w-[56px] ${
               showChatDrawer ? 'text-[#0E71EB]' : 'text-gray-200'
             }`}
           >
-            <MessageSquare className="w-5 h-5" />
-            <span className="text-[10px] font-normal mt-0.5">Chat</span>
+            <MessageSquare className="w-5 h-5" aria-hidden="true" />
+            <span className="text-[10px] font-normal mt-0.5" aria-hidden="true">Chat</span>
           </button>
 
           {/* React */}
           <div className="relative">
             <button
               onClick={() => setShowReactionsMenu(!showReactionsMenu)}
+              aria-label="Send reaction"
+              aria-expanded={showReactionsMenu}
+              aria-haspopup="listbox"
               className={`flex flex-col items-center justify-center p-2 rounded-lg hover:bg-[#1c1d1f] transition-all min-w-[56px] ${
                 showReactionsMenu ? 'text-[#0E71EB]' : 'text-gray-200'
               }`}
             >
-              <Smile className="w-5 h-5" />
+              <Smile className="w-5 h-5" aria-hidden="true" />
               <span className="text-[10px] font-normal mt-0.5">React</span>
             </button>
 
