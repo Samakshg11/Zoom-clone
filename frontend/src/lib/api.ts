@@ -16,6 +16,13 @@ const getApiBaseUrl = (): string => {
 
 const API_BASE_URL = getApiBaseUrl();
 
+export interface HealthStatus {
+  status: 'healthy' | 'degraded' | 'offline';
+  database: string;
+  timestamp: string;
+  version: string;
+}
+
 export interface Participant {
   id: number;
   meeting_id: number;
@@ -145,5 +152,21 @@ export async function cancelMeeting(meetingCode: string): Promise<boolean> {
   } catch (error) {
     console.error('Error deleting meeting:', error);
     return false;
+  }
+}
+
+export async function checkHealth(): Promise<HealthStatus> {
+  try {
+    const baseWithoutApi = API_BASE_URL.replace(/\/api$/, '');
+    const res = await fetch(`${baseWithoutApi}/api/health`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Not OK');
+    return await res.json();
+  } catch {
+    return {
+      status: 'offline',
+      database: 'unreachable',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+    };
   }
 }

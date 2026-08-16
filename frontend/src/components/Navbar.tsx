@@ -1,17 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Search, ChevronLeft, ChevronRight, History, Settings,
-  CheckCircle2, X
+  CheckCircle2, X, Wifi, WifiOff, Loader2
 } from 'lucide-react';
+import { checkHealth } from '@/lib/api';
 
 export default function Navbar() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [apiStatus, setApiStatus] = useState<'healthy' | 'degraded' | 'offline' | 'loading'>('loading');
   const router = useRouter();
+
+  useEffect(() => {
+    let cancelled = false;
+    const poll = async () => {
+      const health = await checkHealth();
+      if (!cancelled) setApiStatus(health.status);
+    };
+    poll();
+    const interval = setInterval(poll, 30000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
 
   return (
     <>
@@ -71,6 +84,28 @@ export default function Navbar() {
 
         {/* Right Actions & Profile */}
         <div className="flex items-center gap-3">
+          {/* API Health Status Indicator */}
+          <div
+            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
+              apiStatus === 'healthy'
+                ? 'bg-green-100 text-green-700'
+                : apiStatus === 'degraded'
+                ? 'bg-yellow-100 text-yellow-700'
+                : apiStatus === 'offline'
+                ? 'bg-red-100 text-red-700'
+                : 'bg-gray-100 text-gray-500'
+            }`}
+            title={apiStatus === 'healthy' ? 'Backend API connected' : apiStatus === 'offline' ? 'Backend API offline' : 'Checking API...'}
+            aria-label={`API status: ${apiStatus}`}
+            role="status"
+          >
+            {apiStatus === 'loading' && <Loader2 className="w-2.5 h-2.5 animate-spin" />}
+            {apiStatus === 'healthy' && <Wifi className="w-2.5 h-2.5" />}
+            {(apiStatus === 'degraded' || apiStatus === 'offline') && <WifiOff className="w-2.5 h-2.5" />}
+            <span className="capitalize">
+              {apiStatus === 'loading' ? 'Connecting...' : apiStatus === 'healthy' ? 'API Connected' : apiStatus === 'degraded' ? 'API Degraded' : 'API Offline'}
+            </span>
+          </div>
           <button
             onClick={() => setShowUpgradeModal(true)}
             className="bg-[#0E71EB] hover:bg-[#0059be] active:scale-95 text-white text-xs font-semibold px-3.5 py-1 rounded-full transition-all flex items-center justify-center shadow-xs cursor-pointer"
