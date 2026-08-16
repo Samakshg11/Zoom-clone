@@ -9,7 +9,7 @@ import {
   Info, Calendar, RotateCw,
   Loader2, Hash, Trash2,
   MoreHorizontal, ChevronDown, ChevronRight,
-  X, CheckCircle2, Sparkles, Shield, Zap, Send, Layers
+  X, CheckCircle2, Sparkles, Shield, Zap, Send, Layers, Search
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { fetchUpcomingMeetings, fetchRecentMeetings, createInstantMeeting, cancelMeeting, Meeting } from '@/lib/api';
@@ -17,13 +17,15 @@ import { fetchUpcomingMeetings, fetchRecentMeetings, createInstantMeeting, cance
 export default function Dashboard() {
   const router = useRouter();
   const [upcomingMeetings, setUpcomingMeetings] = useState<Meeting[]>([]);
-  const [, setRecentMeetings] = useState<Meeting[]>([]);
+  const [recentMeetings, setRecentMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
   const [creatingInstant, setCreatingInstant] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [deletingCode, setDeletingCode] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<'home' | 'meetings' | 'chat'>('home');
+  const [meetingSearch, setMeetingSearch] = useState('');
+  const [meetingFilter, setMeetingFilter] = useState<'all' | 'upcoming' | 'recent'>('upcoming');
 
   const [showNewMeetingMenu, setShowNewMeetingMenu] = useState(false);
   const [showMoreToolsModal, setShowMoreToolsModal] = useState(false);
@@ -344,88 +346,151 @@ export default function Dashboard() {
               </button>
             </div>
 
+            {/* Search + Filter Bar */}
+            <div className="px-4 pb-3 pt-1 border-b border-gray-100 flex items-center gap-2 flex-wrap">
+              <div className="relative flex-1 min-w-40">
+                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  id="meeting-search"
+                  type="text"
+                  value={meetingSearch}
+                  onChange={(e) => setMeetingSearch(e.target.value)}
+                  placeholder="Search meetings..."
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0E71EB] focus:border-[#0E71EB] transition-all"
+                  aria-label="Search meetings"
+                />
+              </div>
+              <div className="flex items-center gap-1" role="group" aria-label="Filter meetings by category">
+                {(['upcoming', 'recent', 'all'] as const).map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setMeetingFilter(filter)}
+                    className={`px-2.5 py-1 text-[11px] font-semibold rounded-lg capitalize transition-colors cursor-pointer ${
+                      meetingFilter === filter
+                        ? 'bg-[#0E71EB] text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                    aria-pressed={meetingFilter === filter}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Meetings List / Empty State */}
             <div className="p-6">
-              {loading ? (
-                <div className="text-center py-8 text-xs text-gray-400 flex flex-col items-center gap-2">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#0E71EB]" />
-                  <span>Loading scheduled meetings...</span>
-                </div>
-              ) : upcomingMeetings.length > 0 ? (
-                <div className="space-y-3">
-                  {upcomingMeetings.map((m) => (
-                    <div
-                      key={m.id}
-                      className="p-4 bg-gray-50/70 border border-gray-200/80 rounded-xl flex items-center justify-between gap-4 hover:bg-blue-50/30 hover:border-blue-200 transition-all"
-                    >
-                      <div className="min-w-0">
-                        <h4 className="font-semibold text-sm text-gray-900 truncate">{m.title}</h4>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1 font-normal">
-                          <span className="font-mono text-gray-400 flex items-center gap-0.5">
-                            <Hash className="w-3 h-3" />
-                            {m.meeting_code}
-                          </span>
-                          <span>•</span>
-                          <span>
-                            {m.scheduled_time
-                              ? new Date(m.scheduled_time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
-                              : 'Flexible Time'}
-                          </span>
+              {(() => {
+                const searchTerm = meetingSearch.toLowerCase().trim();
+                const allMeetings = [
+                  ...(meetingFilter !== 'recent' ? upcomingMeetings : []),
+                  ...(meetingFilter !== 'upcoming' ? recentMeetings : []),
+                ];
+                const filteredMeetings = searchTerm
+                  ? allMeetings.filter(
+                      (m) =>
+                        m.title.toLowerCase().includes(searchTerm) ||
+                        m.meeting_code.toLowerCase().includes(searchTerm)
+                    )
+                  : meetingFilter === 'all'
+                  ? allMeetings
+                  : meetingFilter === 'recent'
+                  ? recentMeetings
+                  : upcomingMeetings;
+                return loading ? (
+                  <div className="text-center py-8 text-xs text-gray-400 flex flex-col items-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-[#0E71EB]" />
+                    <span>Loading meetings...</span>
+                  </div>
+                ) : filteredMeetings.length > 0 ? (
+                  <div className="space-y-3">
+                    {filteredMeetings.map((m) => (
+                      <div
+                        key={m.id}
+                        className="p-4 bg-gray-50/70 border border-gray-200/80 rounded-xl flex items-center justify-between gap-4 hover:bg-blue-50/30 hover:border-blue-200 transition-all"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold text-sm text-gray-900 truncate">{m.title}</h4>
+                            <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded-full ${
+                              m.status === 'live' ? 'bg-red-100 text-red-600' :
+                              m.status === 'upcoming' ? 'bg-blue-50 text-blue-600' :
+                              'bg-gray-100 text-gray-500'
+                            }`}>{m.status}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1 font-normal">
+                            <span className="font-mono text-gray-400 flex items-center gap-0.5">
+                              <Hash className="w-3 h-3" />
+                              {m.meeting_code}
+                            </span>
+                            <span>•</span>
+                            <span>
+                              {m.scheduled_time
+                                ? new Date(m.scheduled_time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+                                : 'Flexible Time'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={(e) => handleCopyLink(m, e)}
+                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200 cursor-pointer"
+                            title="Copy invite link"
+                          >
+                            {copiedCode === m.meeting_code ? (
+                              <Check className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <Copy className="w-4 h-4" />
+                            )}
+                          </button>
+                          {m.status !== 'ended' && (
+                            <button
+                              onClick={() => handleDeleteMeeting(m.meeting_code)}
+                              disabled={deletingCode === m.meeting_code}
+                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200 disabled:opacity-50 cursor-pointer"
+                              title="Remove meeting"
+                            >
+                              {deletingCode === m.meeting_code ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </button>
+                          )}
+                          {m.status !== 'ended' && (
+                            <button
+                              onClick={() => {
+                                if (typeof window !== 'undefined') {
+                                  localStorage.setItem(`zoom_display_name_${m.meeting_code}`, 'Demo Host');
+                                }
+                                router.push(`/meeting/${m.meeting_code}`);
+                              }}
+                              className="px-4 py-1.5 bg-[#0E71EB] hover:bg-[#0059be] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
+                            >
+                              Start
+                            </button>
+                          )}
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={(e) => handleCopyLink(m, e)}
-                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200 cursor-pointer"
-                          title="Copy invite link"
-                        >
-                          {copiedCode === m.meeting_code ? (
-                            <Check className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteMeeting(m.meeting_code)}
-                          disabled={deletingCode === m.meeting_code}
-                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-200 disabled:opacity-50 cursor-pointer"
-                          title="Remove meeting"
-                        >
-                          {deletingCode === m.meeting_code ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-4 h-4" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (typeof window !== 'undefined') {
-                              localStorage.setItem(`zoom_display_name_${m.meeting_code}`, 'Demo Host');
-                            }
-                            router.push(`/meeting/${m.meeting_code}`);
-                          }}
-                          className="px-4 py-1.5 bg-[#0E71EB] hover:bg-[#0059be] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
-                        >
-                          Start
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center space-y-3">
-                  <div className="w-20 h-20 relative flex items-center justify-center">
-                    <svg className="w-16 h-16 text-indigo-300" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M32 8L48 24H16L32 8Z" fill="#818CF8" fillOpacity="0.4" />
-                      <path d="M32 8C24 16 16 24 16 24H48C48 24 40 16 32 8Z" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M32 24V48" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" />
-                      <path d="M20 48H44" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
+                    ))}
                   </div>
-                  <p className="text-xs text-gray-500 font-medium">No meetings scheduled.</p>
-                </div>
-              )}
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 text-center space-y-3">
+                    <div className="w-20 h-20 relative flex items-center justify-center">
+                      <svg className="w-16 h-16 text-indigo-300" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M32 8L48 24H16L32 8Z" fill="#818CF8" fillOpacity="0.4" />
+                        <path d="M32 8C24 16 16 24 16 24H48C48 24 40 16 32 8Z" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M32 24V48" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" />
+                        <path d="M20 48H44" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                    <p className="text-xs text-gray-500 font-medium">
+                      {meetingSearch ? `No results for "${meetingSearch}"` : 'No meetings found.'}
+                    </p>
+                  </div>
+                );
+              })()}
             </div>
             {/* Card Footer Link */}
             <div className="px-6 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center">
